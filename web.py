@@ -5,11 +5,16 @@ from v4l2py import Device
 
 app = flask.Flask("basic-web-cam")
 
+cam = Device.from_id(0)
+cam.open()
+
 
 def gen_frames():
-    with Device.from_id(0) as cam:
+    try:
         for frame in cam:
             yield b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + frame.data + b"\r\n"
+    except OSError:
+        print("device is busy")
 
 
 @app.route("/")
@@ -22,7 +27,3 @@ def stream():
     return flask.Response(
         gen_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
     )
-
-
-if __name__ == "__main__":
-    app.run("0.0.0.0")
