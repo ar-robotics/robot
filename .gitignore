@@ -1,13 +1,7 @@
 # general
 .vscode
-__pycache__
-*.log
-include/
 
-# ROS2
-install
-lib
-lib64
-log
+# ros
 build
-bin
+log
+install

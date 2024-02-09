@@ -1,28 +1,19 @@
 # robot
 
-## Setup
+## Docker
+### Build an image
 ```bash
-python3 -m venv .venv
-soruce .venv/bin/activate
-which python
-python3 -m pip --version
+./build_image
 ```
 
-## Installation
+### Share files
 ```bash
-python3 -m pip install -r requirements.txt
+./run_docker
 ```
 
-## Video stream server
-For the video stream to work you need to start `cheese` as `pi` user.
-Then start the server with:
-
+## ROS2
+### Create a package
 ```bash
-./run_server
-```
-
-## Docker 
-```bash
-docker build -t test/ros:app .
-docker run -it --rm test/ros:app
+cd /robot/src
+ros2 pkg create --build-type ament_python <package_name>
 ```
