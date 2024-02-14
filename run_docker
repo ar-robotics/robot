@@ -1,2 +1,4 @@
 #!/bin/bash
-docker run -it --user ros -v $PWD/robot:/robot my_image
+# docker run --rm -it --user ros --device /dev/video0 -v $PWD/robot:/robot ros2_humble_workspace
+docker run --rm -it --user ros -v $PWD/robot:/robot ros2_humble_workspace
+# docker run --rm -it --user ros -v $PWD/robot:/robot ros2_humble_workspace flake8 src

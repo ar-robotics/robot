@@ -1,5 +1,10 @@
 import rclpy
+from rclpy import qos
 from rclpy.node import Node
+
+from interfaces.msg import Testing
+
+# from std_msgs.msg import String
 
 
 class Controller(Node):
@@ -8,10 +13,18 @@ class Controller(Node):
     def __init__(self):
         super().__init__("Controller")
 
+        # subscribers
+        self.sub_pos = self.create_subscription(Testing, "testing", self.sub, 1)
+
+        # publishers
         self.create_timer(1, self.print_loop)
 
+    def sub(self, msg) -> None:
+        print("got message", msg)
+
     def print_loop(self) -> None:
-        """fdshkjfhksjfhfdshkjfhksjfhfdshkjfhksjfhfdshkjfhksjfhfdshkjfhhkjfhksjfhfdshkjfhksjfh"""
+        # why does not flake8 react to this?
+        """fdshkjfhksjfhfdshkjfhksjfhfdshkjfhksjfhfdsfdsjklfjskfjsljfklshkjfhksjfhfdshkjfhhkjfhksjfhfdshkjfhksjfh"""
         print("we are running...")
 
 
