@@ -1,5 +1,4 @@
 import rclpy
-from rclpy import qos
 from rclpy.node import Node
 
 from interfaces.msg import Testing
@@ -8,7 +7,7 @@ from interfaces.msg import Testing
 
 
 class Controller(Node):
-    """Interacts with the Expansion board"""
+    """Interacts with the Expansion board."""
 
     def __init__(self):
         super().__init__("Controller")
@@ -23,8 +22,6 @@ class Controller(Node):
         print("got message", msg)
 
     def print_loop(self) -> None:
-        # why does not flake8 react to this?
-        """fdshkjfhksjfhfdshkjfhksjfhfdshkjfhksjfhfdsfdsjklfjskfjsljfklshkjfhksjfhfdshkjfhhkjfhksjfhfdshkjfhksjfh"""
         print("we are running...")
 
 
