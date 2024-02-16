@@ -1,7 +1,8 @@
+from interfaces.msg import Testing
+
 import rclpy
 from rclpy.node import Node
 
-from interfaces.msg import Testing
 
 # from std_msgs.msg import String
 

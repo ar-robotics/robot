@@ -1,6 +1,9 @@
 # general
 .vscode
+
+# python
 .venv
+__pycache__
 
 # ros
 build
