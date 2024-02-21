@@ -1,5 +1,8 @@
+import json
 import socket
 import time
+
+from interfaces.msg import VRData
 
 import rclpy
 from rclpy.node import Node
@@ -9,6 +12,12 @@ class TCPSocket(Node):
 
     def __init__(self):
         super().__init__("tcp_socket")
+
+        print(self.__class__.__name__, "is running!")
+
+        # publishers
+        self.pub_vr = self.create_publisher(VRData, "vr_data", 1)
+
         self.host = "0.0.0.0"  # Listen on all network interfaces
         self.port = 8080
 
@@ -34,11 +43,31 @@ class TCPSocket(Node):
                 break
 
             # Decode received data
-            received_data = data.decode("utf-8")
+            received_data = self.__to_json(data)
             print(f"{time.time()} - received: {received_data}")
+            self.__publish_vr_data(received_data)
 
             # Echo the received data back to the client
-            self.client_socket.sendall("hello meta quest".encode())
+            # self.client_socket.sendall(self.__to_json({"sucess":True}))
+            self.send({"success": True})
+
+    def __publish_vr_data(self, data: dict) -> None:
+        if not data:
+            return
+
+        vr_data = VRData()
+        vr_data.x = data["x"]
+        vr_data.y = data["y"]
+        vr_data.speed = data["speed"]
+        self.pub_vr.publish(vr_data)
+
+    def send(self, data: dict) -> None:
+        self.client_socket.sendall(self.__to_json(data))
+
+    def __to_json(self, data: bytes | dict) -> dict | bytes:
+        if isinstance(data, bytes):
+            return json.loads(data)
+        return json.dumps(data).encode()
 
     def cleanup(self):
         # Close the connection

@@ -1,37 +1,31 @@
-from interfaces.msg import Testing
-
-import rclpy
-from rclpy.node import Node
+from .robot import Direction, Robot
 
 
-# from std_msgs.msg import String
+class Controller:
+    def __init__(self, testing: bool = False) -> None:
+        self.robot = Robot(testing)
+        # self.robot.drive(Direction.STOP)
 
+    @staticmethod
+    def convert_coordinates_to_direction(x: float, y: float) -> Direction:
+        upper_threshold = 0.3
+        lower_threshold = -upper_threshold
 
-class Controller(Node):
-    """Interacts with the Expansion board."""
+        if x < lower_threshold:
+            return Direction.LEFT
 
-    def __init__(self):
-        super().__init__("Controller")
+        if x > upper_threshold:
+            return Direction.RIGHT
 
-        # subscribers
-        self.sub_pos = self.create_subscription(Testing, "testing", self.sub, 1)
+        if y > upper_threshold:
+            return Direction.FORWARD
 
-        # publishers
-        self.create_timer(1, self.print_loop)
+        return Direction.STOP
 
-    def sub(self, msg) -> None:
-        print("got message", msg)
+    def handle_vr_data(self, msg) -> None:
+        x, y, speed = msg.x, msg.y, msg.speed
+        print(f"got {x=} {y=} {speed=}")
+        direction = self.convert_coordinates_to_direction(x, y)
 
-    def print_loop(self) -> None:
-        print("we are running...")
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = Controller()
-    rclpy.spin(node)
-    rclpy.shutdown()
-
-
-if __name__ == "__main__":
-    main()
+        print(direction)
+        # self.robot.drive(direction)

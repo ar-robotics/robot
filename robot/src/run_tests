@@ -1,0 +1,27 @@
+#!/bin/bash
+cd ai_detection
+python3 -m unittest
+cd ..
+
+cd camera
+python3 -m unittest
+cd ..
+
+cd controller
+python3 -m unittest
+cd ..
+
+cd logger
+python3 -m unittest
+cd ..
+
+cd master
+python3 -m unittest
+cd ..
+
+cd vr_linker
+python3 -m unittest
+cd ..
+
+
+
