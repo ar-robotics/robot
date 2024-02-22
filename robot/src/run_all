@@ -1,0 +1,2 @@
+#!/bin/bash
+./run_linker & ./run_master & ./run_controller & ./run_logger

@@ -16,7 +16,7 @@ class TCPSocket(Node):
         print(self.__class__.__name__, "is running!")
 
         # publishers
-        self.pub_vr = self.create_publisher(VRData, "vr_data", 1)
+        self.pub_vr = self.create_publisher(VRData, "_vr_data", 1)
 
         self.host = "0.0.0.0"  # Listen on all network interfaces
         self.port = 8080
@@ -65,9 +65,12 @@ class TCPSocket(Node):
         self.client_socket.sendall(self.__to_json(data))
 
     def __to_json(self, data: bytes | dict) -> dict | bytes:
-        if isinstance(data, bytes):
-            return json.loads(data)
-        return json.dumps(data).encode()
+        try:
+            if isinstance(data, bytes):
+                return json.loads(data)
+            return json.dumps(data).encode()
+        except json.decoder.JSONDecodeError:
+            print("Could not parse JSON data", data.decode())
 
     def cleanup(self):
         # Close the connection

@@ -27,5 +27,10 @@ class Controller:
         print(f"got {x=} {y=} {speed=}")
         direction = self.convert_coordinates_to_direction(x, y)
 
+        if speed not in range(0, 100 + 1):
+            speed = 50
+
+        # TODO: set speed if != current speed is [0,100]
+
         print(direction)
-        # self.robot.drive(direction)
+        self.robot.drive(direction)

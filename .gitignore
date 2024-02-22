@@ -1,5 +1,6 @@
 # general
 .vscode
+*.log
 
 # python
 .venv

@@ -19,7 +19,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "linker = vr_linker.linker:main",
+            "linker = vr_linker.vr_linker_node:main",
         ],
     },
 )
