@@ -1,21 +1,24 @@
+from .config import THRESHOLD
 from .robot import Direction, Robot
 
 
 class Controller:
-    def __init__(self, testing: bool = False) -> None:
-        self.robot = Robot(testing)
+    def __init__(self, production: bool = True) -> None:
+        self.robot = Robot(production)
         # self.robot.drive(Direction.STOP)
+
+    # TODO: add if not recevied command last 3 seconds, STOP
 
     @staticmethod
     def convert_coordinates_to_direction(x: float, y: float) -> Direction:
-        upper_threshold = 0.3
-        lower_threshold = -upper_threshold
+        upper_threshold = THRESHOLD
+        lower_threshold = -THRESHOLD
 
         if x < lower_threshold:
-            return Direction.LEFT
+            return Direction.TURN_LEFT
 
         if x > upper_threshold:
-            return Direction.RIGHT
+            return Direction.TURN_RIGHT
 
         if y > upper_threshold:
             return Direction.FORWARD
@@ -30,7 +33,7 @@ class Controller:
         if speed not in range(0, 100 + 1):
             speed = 50
 
-        # TODO: set speed if != current speed is [0,100]
+        if speed != self.robot.speed:
+            self.robot.set_speed(speed)
 
-        print(direction)
         self.robot.drive(direction)

@@ -3,14 +3,14 @@ from .rosmaster import Rosmaster
 
 
 class Robot:
-    def __init__(self, testing: bool = False) -> None:
-        if testing:
-            self.ros_master = None
-        else:
+    def __init__(self, production: bool = True) -> None:
+        if production:
             self.ros_master = Rosmaster(com="/dev/ttyUSB0", debug=True)
+        else:
+            self.ros_master = None
 
-        self.testing = testing
-        self.speed = 50  # NOTE: cant send -values
+        self.production = production
+        self.speed = 50  # NOTE: cant send negative values
 
     def get_direction(self, direction: Direction) -> list[int]:
         return [self.speed * i for i in direction.value]
@@ -19,8 +19,9 @@ class Robot:
         self.speed = speed
 
     def drive(self, direction: Direction) -> None:
-        if self.testing:
-            print(f"Testing mode: would drive {direction}")
+        print(f"Driving in {direction=}")
+
+        if not self.production:
             return
 
         self.ros_master.set_motor(*self.get_direction(direction))

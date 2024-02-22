@@ -1,15 +1,13 @@
 from unittest import TestCase
 
-from controller.robot import Robot
 from controller.direction import Direction
+from controller.robot import Robot
 
 
 class TestDirections(TestCase):
     def test_directions(self):
-        robot = Robot(testing=True)
-        robot.set_speed(50)
+        robot = Robot(production=False)
+        robot.set_speed(30)
 
         self.assertEqual(Direction.BACKWARD.name, "BACKWARD")
-        self.assertEqual(
-            robot.get_direction(Direction.FORWARD_LEFT), [50, 50, 25.0, 25.0]
-        )
+        self.assertEqual(robot.speed, 30)

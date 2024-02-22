@@ -3,7 +3,7 @@ from interfaces.msg import VRData
 import rclpy
 from rclpy.node import Node
 
-from .config import TESTING
+from .config import PRODUCTION
 from .controller import Controller
 
 # from std_msgs.msg import String
@@ -17,7 +17,7 @@ class ControllerNode(Node):
 
         print(self.__class__.__name__, "is running!")
 
-        self.controller = Controller(TESTING)
+        self.controller = Controller(PRODUCTION)
 
         # NOTE: subscribers
         self.sub_vr = self.create_subscription(
