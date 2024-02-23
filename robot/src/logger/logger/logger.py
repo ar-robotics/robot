@@ -25,7 +25,18 @@ class Logger:
         pass
 
     def log(self, topic: str, msg) -> None:
+        """Logs messages.
+
+        Args:
+            topic: topic
+            msg: message
+        """
         logging.info(f"{topic}: {msg}")
 
     def handle_vr_data(self, msg) -> None:
+        """Handles VRData messages.
+
+        Args:
+            msg: VRData message
+        """
         self.log("_vr_data", msg)

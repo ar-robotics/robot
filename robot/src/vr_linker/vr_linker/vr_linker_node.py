@@ -52,6 +52,11 @@ class TCPSocket(Node):
             self.send({"success": True})
 
     def __publish_vr_data(self, data: dict) -> None:
+        """Publishes VRData messages.
+
+        Args:
+            data: VRData message to _vr_data topic
+        """
         if not data:
             return
 
@@ -62,9 +67,22 @@ class TCPSocket(Node):
         self.pub_vr.publish(vr_data)
 
     def send(self, data: dict) -> None:
+        """Sends data to the client.
+
+        Args:
+            data: data to send
+        """
         self.client_socket.sendall(self.__to_json(data))
 
     def __to_json(self, data: bytes | dict) -> dict | bytes:
+        """Converts data to JSON.
+
+        Args:
+            data: data to convert
+
+        Returns:
+            JSON data as dict or bytes
+        """
         try:
             if isinstance(data, bytes):
                 return json.loads(data)
@@ -73,6 +91,7 @@ class TCPSocket(Node):
             print("Could not parse JSON data", data.decode())
 
     def cleanup(self):
+        """Cleans up the node."""
         # Close the connection
         self.client_socket.close()
         self.server_socket.close()

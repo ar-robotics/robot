@@ -2,6 +2,8 @@ from enum import Enum
 
 
 class Direction(Enum):
+    """Direction enum."""
+
     FORWARD = (1, 1, 1, 1)
     BACKWARD = (-1, -1, -1, -1)
     STOP = (0, 0, 0, 0)

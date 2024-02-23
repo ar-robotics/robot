@@ -4,6 +4,11 @@ from .robot import Direction, Robot
 
 class Controller:
     def __init__(self, production: bool = True) -> None:
+        """Interacts with the Expansion board.
+
+        Args:
+            production: if True, the robot will be controlled by the Expansion board.
+        """
         self.robot = Robot(production)
         # self.robot.drive(Direction.STOP)
 
@@ -11,6 +16,15 @@ class Controller:
 
     @staticmethod
     def convert_coordinates_to_direction(x: float, y: float) -> Direction:
+        """Converts x, y coordinates to a direction.
+
+        Args:
+            x: x coordinate
+            y: y coordinate
+
+        Returns:
+            direction
+        """
         upper_threshold = THRESHOLD
         lower_threshold = -THRESHOLD
 
@@ -26,6 +40,11 @@ class Controller:
         return Direction.STOP
 
     def handle_vr_data(self, msg) -> None:
+        """Handles VRData messages.
+
+        Args:
+            msg: VRData message
+        """
         x, y, speed = msg.x, msg.y, msg.speed
         print(f"got {x=} {y=} {speed=}")
         direction = self.convert_coordinates_to_direction(x, y)

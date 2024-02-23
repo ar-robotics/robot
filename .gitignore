@@ -10,3 +10,6 @@ __pycache__
 build
 log
 install
+
+# sphinx
+_build

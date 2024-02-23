@@ -25,6 +25,11 @@ class Master(Node):
         self.pub_vr = self.create_publisher(VRData, "vr_data", 1)
 
     def handle_unsafe_vr_data(self, msg) -> None:
+        """Handles VRData messages.
+
+        Args:
+            msg: VRData message
+        """
         if self.in_emergency_mode:
             print("In emergency mode, aborting...")
             return

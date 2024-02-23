@@ -1,4 +1,5 @@
 pyserial
 # opencv-python
 # flask
-v4l2py
+# v4l2py
+numpy
