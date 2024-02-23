@@ -1,8 +1,21 @@
 # robot
 Kromium's code for communicating with the VR headset and the expansion board to control the robot. 
 
-# Prerequisites
-## Install Docker
+## Important information
+If you want to run any ROS2 node after making changes to any Python file
+inside the `robot/src` folder, you need to rebuild (`./colcon`).  
+
+Depending on if you want to physically test the robot or not, you need to check
+if `run_docker` is correct. Needs to be `root` user and give permission to the
+USB device for a physical test. You might get an error when trying to `./run_all`,
+if this is the case: delete the `build`, `install` and `log` folders and run 
+`./colcon` again.
+
+If a new Python package is added to `requirements.txt` you would need to run 
+`./build_image` again. 
+
+## Prerequisites
+### Install Docker
 ```bash
 # Add Docker's official GPG key:
 sudo apt-get update
@@ -19,20 +32,20 @@ echo \
 sudo apt-get update
 ```
 
-## Give permission to use Docker
+### Give permission to use Docker
 ```bash
 sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-# Installation
-## Build the image
+## Installation
+### Build the image
 ```bash
 # robot/ (same directory as the Dockerfile)
 ./build_image
 ```
 
-# Running
+## Running
 ```bash
 # robot/
 ./run_docker # starts the container
@@ -40,8 +53,8 @@ sudo usermod -aG docker $USER
 ./run_all # starts all ROS2 nodes
 ```
 
-# Development
-## Start the container
+## Development
+### Start the container
 ```bash
 # robot/
 ./run_docker
@@ -61,20 +74,21 @@ source install/local_setup.bash
 ros2 run package_name executable_variable
 ```
 
-## Testing
+### Testing
 ```bash
+# robot/src
 ./run_tests
 ```
 
 Every unittest should output OK.
 
-## Create a new ROS2 package
+### Create a new ROS2 package
 ```bash
-cd /robot/src
+# robot/src
 ros2 pkg create --build-type ament_python package_name
 ```
 
-# Documentation
+## Documentation
 ```bash
 # install sphinx
 sudo apt-get install python3-sphinx python3-sphinx-rtd-theme
@@ -82,15 +96,3 @@ cd docs/
 make html
 ```
 
-# Important information
-If you want to run any ROS2 node after making changes to any Python file
-inside the `robot/src` folder, you need to rebuild (`./colcon`).  
-
-Depending on if you want to physically test the robot or not, you need to check
-if `run_docker` is correct. Needs to be `root` user and give permission to the
-USB device for a physical test. You might get an error when trying to `./run_all`,
-if this is the case: delete the `build`, `install` and `log` folders and run 
-`./colcon` again.
-
-If a new Python package is added to `requirements.txt` you would need to run 
-`./build_image` again. 

@@ -1,4 +1,4 @@
-from interfaces.msg import VRData
+from interfaces.msg import VRData, VRHand
 
 import rclpy
 from rclpy.node import Node
@@ -22,6 +22,9 @@ class ControllerNode(Node):
         # NOTE: subscribers
         self.sub_vr = self.create_subscription(
             VRData, "vr_data", self.controller.handle_vr_data, 1
+        )
+        self.sub_vr_hand = self.create_subscription(
+            VRHand, "vr_hand", self.controller.handle_vr_hand, 1
         )
 
 

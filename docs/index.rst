@@ -5,8 +5,10 @@ Kromium robot documentation
    :maxdepth: 2
    :caption: Contents:
 
-
+   pages/vr_linker
+   pages/master
    pages/controller
+   pages/logger
 
 
 Indices and tables

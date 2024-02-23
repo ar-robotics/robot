@@ -39,6 +39,34 @@ class Controller:
 
         return Direction.STOP
 
+    @staticmethod
+    def convert_pinch_to_angle(pinch: int) -> int:
+        return 0
+
+    @staticmethod
+    def convert_wrist_to_angle(wrist: int) -> int:
+        return 0
+
+    def handle_vr_hand(self, msg) -> None:
+        """Handles VRHand messages.
+
+        Args:
+            msg: VRHand message
+        """
+        pinch, wrist = msg.pinch, msg.wrist
+        print(f"got {pinch=} {wrist=}")
+
+        if pinch not in range(45, 180 + 1):
+            pinch = self.robot.UNPINCH_ANGLE
+
+        if wrist not in range(0, 180 + 1):
+            wrist = self.robot.WRIST_RESET_ANGLE
+
+        return
+
+        self.robot.set_wrist(wrist)
+        self.robot.set_pinch(pinch)
+
     def handle_vr_data(self, msg) -> None:
         """Handles VRData messages.
 
@@ -50,7 +78,7 @@ class Controller:
         direction = self.convert_coordinates_to_direction(x, y)
 
         if speed not in range(0, 100 + 1):
-            speed = 50
+            speed = self.robot.DEFAULT_SPEED
 
         if speed != self.robot.speed:
             self.robot.set_speed(speed)

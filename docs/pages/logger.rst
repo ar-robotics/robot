@@ -1,0 +1,21 @@
+logger node
+===========
+.. automodule:: robot.src.logger.logger.logger_node
+    :members:
+    :undoc-members:
+    :private-members:
+
+logger
+------
+.. autoclass:: robot.src.logger.logger.logger
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
+utils
+-----
+.. automodule:: robot.src.logger.logger.utils
+    :members:
+    :undoc-members:
+    :private-members:

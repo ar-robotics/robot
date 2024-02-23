@@ -8,9 +8,19 @@ import threading
 
 # V3.3.9
 class Rosmaster(object):
+    """This is a class for controlling the robot. Which is an altered version of yahboom.net's code."""
+
     __uart_state = 0
 
     def __init__(self, car_type=1, com="/dev/myserial", delay=0.002, debug=False):
+        """Initializes the Rosmaster class.
+
+        Args:
+            car_type: the type of the car
+            com: the serial port
+            delay: the delay time
+            debug: if True, the debug mode is enabled
+        """
         # com = "COM30"
         # com="/dev/ttyTHS1"
         # com="/dev/ttyUSB0"
@@ -136,6 +146,12 @@ class Rosmaster(object):
     # 根据数据帧的类型来做出对应的解析
     # According to the type of data frame to make the corresponding parsing
     def __parse_data(self, ext_type, ext_data):
+        """Parses the data.
+
+        Args:
+            ext_type: the type of the data
+            ext_data: the data
+        """
         # print("parse_data:", ext_data, ext_type)
         if ext_type == self.FUNC_REPORT_SPEED:
             # print(ext_data)
@@ -265,6 +281,7 @@ class Rosmaster(object):
 
     # 接收数据 receive data
     def __receive_data(self):
+        """Receives the data."""
         # 清空缓冲区
         self.ser.flushInput()
         while True:
@@ -295,6 +312,12 @@ class Rosmaster(object):
     # 请求数据， function：对应要返回数据的功能字，parm：传入的参数。
     # Request data, function: corresponding function word to return data, parm: parameter passed in
     def __request_data(self, function, param=0):
+        """Requests the data.
+
+        Args:
+            function: the function
+            param: the parameter
+        """
         cmd = [
             self.__HEAD,
             self.__DEVICE_ID,
@@ -312,7 +335,16 @@ class Rosmaster(object):
 
     # 机械臂转化角度成位置脉冲（写入角度）
     # Arm converts Angle to position pulse
-    def __arm_convert_value(self, s_id, s_angle):
+    def __arm_convert_value(self, s_id: int, s_angle: int) -> int:
+        """Converts the value of the arm.
+
+        Args:
+            s_id: the id of the arm
+            s_angle: the angle of the arm
+
+        Returns:
+            the value of the arm
+        """
         value = -1
         if s_id == 1:
             value = int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
@@ -330,7 +362,16 @@ class Rosmaster(object):
 
     # 机械臂转化位置脉冲成角度（读取角度）
     # Arm converts position pulses into angles
-    def __arm_convert_angle(self, s_id, s_value):
+    def __arm_convert_angle(self, s_id: int, s_value: int) -> int:
+        """Converts the angle of the arm.
+
+        Args:
+            s_id: the id of the arm
+            s_value: the value of the arm
+
+        Returns:
+            the angle of the arm
+        """
         s_angle = -1
         if s_id == 1:
             s_angle = int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
@@ -348,7 +389,15 @@ class Rosmaster(object):
 
     # 限制电机输入的PWM占空比数值，value=127则保持原来的数据，不修改当前电机速度
     # Limit the PWM duty ratio value of motor input, value=127, keep the original data, do not modify the current motor speed
-    def __limit_motor_value(self, value):
+    def __limit_motor_value(self, value: int) -> int:
+        """Limits (clamps) the motor value.
+
+        Args:
+            value: the value
+
+        Returns:
+            the clamped value of the motor between -100 and 100
+        """
         if value == 127:
             return 127
         elif value > 100:
@@ -361,6 +410,7 @@ class Rosmaster(object):
     # 开启接收和处理数据的线程
     # Start the thread that receives and processes data
     def create_receive_threading(self):
+        """Creates the receive threading."""
         try:
             if self.__uart_state == 0:
                 name1 = "task_serial_receive"
@@ -382,6 +432,12 @@ class Rosmaster(object):
     # If enable=False, the report is not sent.
     # forever=True for permanent, =False for temporary
     def set_auto_report_state(self, enable, forever=False):
+        """Sets the auto report state.
+
+        Args:
+            enable: if True, the auto report state is enabled
+            forever: if True, the auto report state is permanent
+        """
         try:
             state1 = 0
             state2 = 0
@@ -411,7 +467,12 @@ class Rosmaster(object):
     # on_time>=10：响xx毫秒后自动关闭（on_time是10的倍数）。
     # Buzzer switch. On_time =0: the buzzer is off. On_time =1: the buzzer keeps ringing
     # On_time >=10: automatically closes after xx milliseconds (on_time is a multiple of 10)
-    def set_beep(self, on_time):
+    def set_beep(self, on_time: int):
+        """Sets the beep (buzzer).
+
+        Args:
+            on_time: the time the beep is on
+        """
         try:
             if on_time < 0:
                 print("beep input error!")
@@ -439,7 +500,13 @@ class Rosmaster(object):
     # 舵机控制，servo_id：对应ID编号，angle：对应舵机角度值
     # servo_id=[1, 4], angle=[0, 180]
     # Servo control, servo_id: corresponding, Angle: corresponding servo Angle value
-    def set_pwm_servo(self, servo_id, angle):
+    def set_pwm_servo(self, servo_id: int, angle: int) -> None:
+        """Sets the PWM servo.
+
+        Args:
+            servo_id: the id of the servo between 1 and 4
+            angle: the angle of the servo between 0 and 180
+        """
         try:
             if servo_id < 1 or servo_id > 4:
                 if self.__debug:
@@ -470,7 +537,17 @@ class Rosmaster(object):
 
     # 同时控制四路PWM的角度，angle_sX=[0, 180]
     # At the same time control four PWM Angle, angle_sX=[0, 180]
-    def set_pwm_servo_all(self, angle_s1, angle_s2, angle_s3, angle_s4):
+    def set_pwm_servo_all(
+        self, angle_s1: int, angle_s2: int, angle_s3: int, angle_s4: int
+    ) -> None:
+        """Sets the PWM signal for all servos. Angle values are between 0 and 180.
+
+        Args:
+            angle_s1: the angle of the first servo
+            angle_s2: the angle of the second servo
+            angle_s3: the angle of the third servo
+            angle_s4: the angle of the fourth servo
+        """
         try:
             if angle_s1 < 0 or angle_s1 > 180:
                 angle_s1 = 255
@@ -507,7 +584,15 @@ class Rosmaster(object):
     # RGB programmable light belt control, can be controlled individually or collectively, before control need to stop THE RGB light effect.
     # Led_id =[0, 13], control the CORRESPONDING numbered RGB lights;  Led_id =0xFF, controls all lights.
     # Red,green,blue=[0, 255], indicating the RGB value of the color.
-    def set_colorful_lamps(self, led_id, red, green, blue):
+    def set_colorful_lamps(self, led_id: int, red: int, green: int, blue: int) -> None:
+        """Sets the colorful lamps. Color values between 0 and 255.
+
+        Args:
+            led_id: the id of the led
+            red: the red value
+            green: the green value
+            blue: the blue value
+        """
         try:
             id = int(led_id) & 0xFF
             r = int(red) & 0xFF
@@ -533,7 +618,16 @@ class Rosmaster(object):
     # Effect =[0, 6], 0: stop light effect, 1: running light, 2: running horse light, 3: breathing light, 4: gradient light, 5: starlight, 6: power display
     # Speed =[1, 10], the smaller the value, the faster the speed changes
     # Parm, left blank, as an additional argument.  Usage 1: The color of breathing lamp can be modified by the effect of breathing lamp [0, 6]
-    def set_colorful_effect(self, effect, speed=255, parm=255):
+    def set_colorful_effect(
+        self, effect: int, speed: int = 255, parm: int = 255
+    ) -> None:
+        """Sets the colorful effect.
+
+        Args:
+            effect: the effect between 0 and 6
+            speed: the speed between 1 and 10
+            parm: the parameter between 0 and 6
+        """
         try:
             eff = int(effect) & 0xFF
             spe = int(speed) & 0xFF
@@ -560,7 +654,15 @@ class Rosmaster(object):
 
     # 控制电机PWM脉冲，从而控制速度（未使用编码器测速）。speed_X=[-100, 100]
     # Control PWM pulse of motor to control speed (speed measurement without encoder). speed_X=[-100, 100]
-    def set_motor(self, speed_1, speed_2, speed_3, speed_4):
+    def set_motor(self, speed_1: int, speed_2: int, speed_3: int, speed_4: int) -> None:
+        """Send PWM pulse to each of the motors. Speeds are between -100 and 100.
+
+        Args:
+            speed_1: the speed of motor 1
+            speed_2: the speed of motor 2
+            speed_3: the speed of motor 3
+            speed_4: the speed of motor 4
+        """
         try:
             t_speed_a = bytearray(struct.pack("b", self.__limit_motor_value(speed_1)))
             t_speed_b = bytearray(struct.pack("b", self.__limit_motor_value(speed_2)))
@@ -596,6 +698,13 @@ class Rosmaster(object):
     # Speed =[-100, 100], =0 Stop.
     # Adjust =True Activate the gyroscope auxiliary motion direction.  If =False, the function is disabled.(This function is not enabled)
     def set_car_run(self, state, speed, adjust=False):
+        """Control the car to move forward, backward, left, right, etc.
+
+        Args:
+            state: the state of the car between 0 and 7
+            speed: the speed of the car between -100 and 100
+            adjust: if True, the gyroscope auxiliary motion direction is activated
+        """
         try:
             car_type = self.__CAR_TYPE
             if adjust:
@@ -625,12 +734,19 @@ class Rosmaster(object):
     # 小车运动控制,
     # Car movement control
     def set_car_motion(self, v_x, v_y, v_z):
+        """Control the car movement.
+
+        Args:
+            v_x: the speed of the car in the x direction
+            v_y: the speed of the car in the y direction
+            v_z: the speed of the car in the z direction
         """
-        输入范围 input range:
-        X3: v_x=[-1.0, 1.0], v_y=[-1.0, 1.0], v_z=[-5, 5]
-        X3PLUS: v_x=[-0.7, 0.7], v_y=[-0.7, 0.7], v_z=[-3.2, 3.2]
-        R2/R2L: v_x=[-1.8, 1.8], v_y=[-0.045, 0.045], v_z=[-3, 3]
-        """
+
+        # 输入范围 input range:
+        # X3: v_x=[-1.0, 1.0], v_y=[-1.0, 1.0], v_z=[-5, 5]
+        # X3PLUS: v_x=[-0.7, 0.7], v_y=[-0.7, 0.7], v_z=[-3.2, 3.2]
+        # R2/R2L: v_x=[-1.8, 1.8], v_y=[-0.045, 0.045], v_z=[-3, 3]
+
         try:
             vx_parms = bytearray(struct.pack("h", int(v_x * 1000)))
             vy_parms = bytearray(struct.pack("h", int(v_y * 1000)))

@@ -2,21 +2,22 @@ import json
 import socket
 import time
 
-from interfaces.msg import VRData
+from interfaces.msg import VRData, VRHand
 
 import rclpy
 from rclpy.node import Node
 
 
-class TCPSocket(Node):
+class VRLinkerNode(Node):
 
     def __init__(self):
-        super().__init__("tcp_socket")
+        super().__init__("TCPSocketServer")
 
         print(self.__class__.__name__, "is running!")
 
         # publishers
         self.pub_vr = self.create_publisher(VRData, "_vr_data", 1)
+        self.pub_vr_hand = self.create_publisher(VRHand, "_vr_hand", 1)
 
         self.host = "0.0.0.0"  # Listen on all network interfaces
         self.port = 8080
@@ -60,6 +61,13 @@ class TCPSocket(Node):
         if not data:
             return
 
+        if data.get("pinch"):
+            vr_data = VRHand()
+            vr_data.pinch = data["pinch"]
+            vr_data.wrist = data["wrist"]
+            self.pub_vr_hand.publish(vr_data)
+            return
+
         vr_data = VRData()
         vr_data.x = data["x"]
         vr_data.y = data["y"]
@@ -99,7 +107,7 @@ class TCPSocket(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    tcp_server_node = TCPSocket()
+    tcp_server_node = VRLinkerNode()
     try:
         rclpy.spin(tcp_server_node)
     except Exception:
