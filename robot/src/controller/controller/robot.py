@@ -1,5 +1,5 @@
-from direction import Direction
-from rosmaster import Rosmaster
+from .direction import Direction
+from .rosmaster import Rosmaster
 
 
 class Robot:
