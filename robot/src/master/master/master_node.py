@@ -29,6 +29,7 @@ class MasterNode(Node):
         self.pub_vr_hand = self.create_publisher(VRHand, "vr_hand", 1)
 
     def check_emergency_mode(self) -> None:
+        # NOTE: make this a decorator
         if self.in_emergency_mode:
             raise Exception("In emergency mode, aborting...")
 

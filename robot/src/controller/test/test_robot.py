@@ -5,9 +5,12 @@ from controller.robot import Robot
 
 
 class TestDirections(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.robot = Robot(production=False)
+
     def test_directions(self):
-        robot = Robot(production=False)
-        robot.set_speed(30)
+        self.robot.set_speed(30)
 
         self.assertEqual(Direction.BACKWARD.name, "BACKWARD")
-        self.assertEqual(robot.speed, 30)
+        self.assertEqual(self.robot.get_speed(), 30)

@@ -3,8 +3,8 @@ from interfaces.msg import VRData, VRHand
 import rclpy
 from rclpy.node import Node
 
-from .config import PRODUCTION
 from .controller import Controller
+from .utils import get_production
 
 # from std_msgs.msg import String
 
@@ -17,7 +17,8 @@ class ControllerNode(Node):
 
         print(self.__class__.__name__, "is running!")
 
-        self.controller = Controller(PRODUCTION)
+        is_production = get_production()
+        self.controller = Controller(is_production)
 
         # NOTE: subscribers
         self.sub_vr = self.create_subscription(

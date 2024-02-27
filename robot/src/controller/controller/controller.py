@@ -1,8 +1,11 @@
-from .config import THRESHOLD
 from .robot import Direction, Robot
+from .utils import get_threshold
+
+THRESHOLD = get_threshold()
 
 
 class Controller:
+
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
 
@@ -21,6 +24,7 @@ class Controller:
         Args:
             x: x coordinate
             y: y coordinate
+            threshold: positive threshold value
 
         Returns:
             direction
@@ -67,6 +71,9 @@ class Controller:
         self.robot.set_wrist(wrist)
         self.robot.set_pinch(pinch)
 
+    def _convert_x_to_angle_difference(self, x: float) -> int:
+        return x * 90
+
     def handle_vr_data(self, msg) -> None:
         """Handles VRData messages.
 
@@ -79,6 +86,12 @@ class Controller:
 
         if speed not in range(0, 100 + 1):
             speed = self.robot.DEFAULT_SPEED
+
+        angle = self._convert_x_to_angle_difference(x)
+        print(f"{angle=}")
+        self.robot.set_arm_rotation_difference(angle)
+
+        return
 
         if speed != self.robot.speed:
             self.robot.set_speed(speed)
