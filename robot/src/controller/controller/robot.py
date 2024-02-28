@@ -1,3 +1,5 @@
+import time
+
 from .direction import Direction
 from .rosmaster import Rosmaster
 
@@ -9,6 +11,7 @@ class Robot:
     RESET_WRIST_ANGLE = 135
     RESET_ARM_ROTATION_ANGLE = 90
     RESET_ARM_SHOULDER_ANGLE = 90
+    RESET_ARM_ELBOW_ANGLE = 90
 
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
@@ -147,6 +150,36 @@ class Robot:
             angle: angle
         """
         self.ros_master.set_uart_servo_angle(2, angle)
+
+    def reset_arm_elbow(self) -> None:
+        """Resets the arm elbow to its default position."""
+        self.ros_master.set_uart_servo_angle(3, self.RESET_ARM_ELBOW_ANGLE)
+
+    def set_arm_elbow(self, angle: int) -> None:
+        """Sets the arm elbow angle.
+
+        Args:
+            angle: angle
+        """
+        self.ros_master.set_uart_servo_angle(3, angle)
+
+    def reset_arm_tilt(self) -> None:
+        """Resets the arm tilt to its default position."""
+        self.ros_master.set_uart_servo_angle(4, 0)
+
+    def set_arm_tilt(self, angle: int) -> None:
+        """Sets the arm tilt angle.
+
+        Args:
+            angle: angle
+        """
+        self.ros_master.set_uart_servo_angle(4, angle)
+
+    def beep(self) -> None:
+        """Beeps the robot for 100ms, used for indicating mode change."""
+        duration = 100  # in ms
+        self.ros_master.set_beep(duration)
+        time.sleep(duration / 1000)
 
     # def right(self) -> None:
     #     """Drives the robot right."""

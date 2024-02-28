@@ -1,4 +1,4 @@
-from interfaces.msg import VRData, VRHand
+from interfaces.msg import VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
@@ -26,6 +26,9 @@ class ControllerNode(Node):
         )
         self.sub_vr_hand = self.create_subscription(
             VRHand, "vr_hand", self.controller.handle_vr_hand, 1
+        )
+        self.sub_vr_mode = self.create_subscription(
+            VRMode, "vr_mode", self.controller.handle_vr_mode, 1
         )
 
 

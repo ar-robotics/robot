@@ -1,6 +1,6 @@
 import socket
 
-from interfaces.msg import VRData, VRHand
+from interfaces.msg import VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
@@ -20,6 +20,7 @@ class VRLinkerNode(Node):
         # publishers
         self.pub_vr = self.create_publisher(VRData, "_vr_data", 1)
         self.pub_vr_hand = self.create_publisher(VRHand, "_vr_hand", 1)
+        self.pub_vr_mode = self.create_publisher(VRMode, "_vr_mode", 1)
 
         self.host = "0.0.0.0"  # Listen on all network interfaces
         self.port = 8080

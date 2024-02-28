@@ -34,9 +34,24 @@ class TestController(TestCase):
             Direction.TURN_RIGHT,
         )
 
-    def test_angle_conversion(self):
-        self.assertEqual(self.controller._convert_x_to_angle_difference(0), 0)
-        self.assertEqual(self.controller._convert_x_to_angle_difference(1), 90)
-        self.assertEqual(self.controller._convert_x_to_angle_difference(-1), -90)
-        self.assertEqual(self.controller._convert_x_to_angle_difference(0.5), 45)
-        self.assertEqual(self.controller._convert_x_to_angle_difference(-0.5), -45)
+    def test_angle_x_conversion(self):
+        self.assertEqual(self.controller.convert_x_to_angle_difference(0), 0)
+        self.assertEqual(self.controller.convert_x_to_angle_difference(1), 90)
+        self.assertEqual(self.controller.convert_x_to_angle_difference(-1), -90)
+        self.assertEqual(self.controller.convert_x_to_angle_difference(0.5), 45)
+        self.assertEqual(self.controller.convert_x_to_angle_difference(-0.5), -45)
+
+    def test_angle_y_conversion(self):
+        self.assertEqual(self.controller.convert_y_to_angle_difference(0), 0)
+        self.assertEqual(self.controller.convert_y_to_angle_difference(1), 90)
+        self.assertEqual(self.controller.convert_y_to_angle_difference(-1), 90)
+        self.assertEqual(self.controller.convert_y_to_angle_difference(0.5), 45)
+        self.assertEqual(self.controller.convert_y_to_angle_difference(-0.5), 45)
+        self.assertEqual(self.controller.convert_y_to_angle_difference(1.1), 90)
+
+    def test_pinch_angle_conversion(self):
+        self.assertEqual(self.controller.convert_pinch_to_angle(0), 45)
+        self.assertEqual(self.controller.convert_pinch_to_angle(1), 180)
+        self.assertEqual(self.controller.convert_pinch_to_angle(-1), 180)
+        self.assertEqual(self.controller.convert_pinch_to_angle(0.5), 90)
+        self.assertEqual(self.controller.convert_pinch_to_angle(1.1), 180)

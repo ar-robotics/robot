@@ -1,2 +1,4 @@
+float64 x
+float64 y
 int64 pinch
-int64 wrist
+float64 strength

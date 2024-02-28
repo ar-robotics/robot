@@ -2,11 +2,11 @@ import json
 import time
 
 try:
-    from interfaces.msg import VRData, VRHand
+    from interfaces.msg import VRData, VRHand, VRMode
 except ModuleNotFoundError:
     # unittests have different path than the main program
     # set them to None to avoid import errors
-    VRData, VRHand = None, None
+    VRData, VRHand, VRMode = None, None, None
 
 
 class VRLinker:
@@ -31,6 +31,11 @@ class VRLinker:
             print("Could not parse JSON data", data.decode())
 
     def _send(self, data: dict) -> None:
+        """Sends data over the TCP socket.
+
+        Args:
+            data: data
+        """
         self.node.client_socket.sendall(self._to_json(data))
 
     def process_message(self) -> None:
@@ -56,7 +61,7 @@ class VRLinker:
         Returns:
             True if the message is a VRHand message
         """
-        return "pinch" in data and "wrist" in data
+        return "x" in data and "speed" not in data
 
     def _is_vr_data_message(self, data: dict) -> bool:
         """Checks if the message is a VRData message.
@@ -69,6 +74,17 @@ class VRLinker:
         """
         return "x" in data and "y" in data and "speed" in data
 
+    def _is_mode_message(self, data: dict) -> bool:
+        """Checks if the message is a mode message.
+
+        Args:
+            data: data
+
+        Returns:
+            True if the message is a mode message
+        """
+        return "mode" in data
+
     def _publish_vr_hand(self, data: dict) -> None:
         """Publishes VRHand messages.
 
@@ -76,8 +92,10 @@ class VRLinker:
             data: data
         """
         vr_hand = VRHand()
+        vr_hand.x = data["x"]
+        vr_hand.y = data["y"]
         vr_hand.pinch = data["pinch"]
-        vr_hand.wrist = data["wrist"]
+        vr_hand.strength = data["strength"]
 
         self.node.pub_vr_hand.publish(vr_hand)
         print(f"<- {time.time()} {vr_hand}")
@@ -96,6 +114,17 @@ class VRLinker:
         self.node.pub_vr.publish(vr_data)
         print(f"<- {time.time()} {vr_data}")
 
+    def _publish_mode(self, data: dict) -> None:
+        """Publishes mode messages.
+
+        Args:
+            data: data
+        """
+        mode = VRMode()
+        mode.mode = data["mode"]
+        self.node.pub_vr_mode.publish(mode)
+        print(f"<- {time.time()} {mode}")
+
     def _publish_data(self, data: dict) -> None:
         """Publishes VRData messages.
 
@@ -105,10 +134,14 @@ class VRLinker:
         if not data:
             return
 
-        if self._is_vr_hand_message(data):
-            self._publish_vr_hand(data)
+        if self._is_mode_message(data):
+            self._publish_mode(data)
             return
 
         if self._is_vr_data_message(data):
             self._publish_vr_data(data)
+            return
+
+        if self._is_vr_hand_message(data):
+            self._publish_vr_hand(data)
             return

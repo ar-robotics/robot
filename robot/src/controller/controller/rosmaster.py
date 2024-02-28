@@ -905,7 +905,7 @@ class Rosmaster(object):
                 print("uartServo:", servo_id, int(pulse_value), cmd)
             time.sleep(self.__delay_time)
         except:
-            print("---set_uart_servo error!---")
+            print(f"---set_uart_servo error! {servo_id} ---")
             pass
 
     # 设置总线舵机角度接口：s_id:[1,6], s_angle: 1-4:[0, 180], 5:[0, 270], 6:[0, 180], 设置舵机要运动到的角度。
