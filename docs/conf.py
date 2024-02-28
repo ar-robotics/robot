@@ -35,6 +35,7 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 extensions = [
+    "sphinxcontrib.jquery",
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
@@ -63,14 +64,14 @@ napoleon_preprocess_types = False
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_static_path = ["_static"]
 
 html_theme_options = {
-    "collapse_navigation": False,
-    "navigation_depth": 4,
-    "includehidden": True,
-    "prev_next_buttons_location": None,
+    # "collapse_navigation": False,
+    # "navigation_depth": 4,
+    # "includehidden": True,
+    # "prev_next_buttons_location": None,
 }
 
 html_css_files = [

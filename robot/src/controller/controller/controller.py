@@ -1,10 +1,13 @@
 from .robot import Direction, Robot
 from .utils import get_threshold
 
-THRESHOLD = get_threshold()
-
 
 class Controller:
+    try:
+        THRESHOLD = get_threshold()
+    except FileNotFoundError:
+        # for building the documentation
+        THRESHOLD = 0.3
 
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
@@ -17,8 +20,7 @@ class Controller:
 
     # TODO: add if not recevied command last 3 seconds, STOP
 
-    @staticmethod
-    def convert_coordinates_to_direction(x: float, y: float) -> Direction:
+    def convert_coordinates_to_direction(self, x: float, y: float) -> Direction:
         """Converts x, y coordinates to a direction.
 
         Args:
@@ -29,8 +31,8 @@ class Controller:
         Returns:
             direction
         """
-        upper_threshold = THRESHOLD
-        lower_threshold = -THRESHOLD
+        upper_threshold = self.THRESHOLD
+        lower_threshold = -self.THRESHOLD
 
         if x < lower_threshold:
             return Direction.TURN_LEFT

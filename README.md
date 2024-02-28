@@ -2,17 +2,40 @@
 Kromium's code for communicating with the VR headset and the expansion board to control the robot. 
 
 ## Important information
-If you want to run any ROS2 node after making changes to any Python file
-inside the `robot/src` folder, you need to rebuild (`./colcon`).  
+* If you want to run any ROS2 node after making changes to any Python file inside the `robot/src` folder, you need to rebuild (`./colcon`).  
 
-Depending on if you want to physically test the robot or not, you need to check
-if `run_docker` is correct. Needs to be `root` user and give permission to the
-USB device for a physical test. You might get an error when trying to `./run_all`,
-if this is the case: delete the `build`, `install` and `log` folders and run 
-`./colcon` again.
+* If a new Python package is added to `requirements.txt` you would need to run `./build_image` again. 
 
-If a new Python package is added to `requirements.txt` you would need to run 
-`./build_image` again. 
+### Test physically (production)
+Physically implies using the expansion board.
+
+Make sure that `production` is set to `true` in the [config](/robot/src/controller/controller/config.json).
+
+```bash
+# robot/
+./run_docker_production
+```
+
+Enters the container as `root` to access the `/dev/ttyUSB0` (expansion board).
+This device is also passed into the container.
+
+### Not testing physically (not production)
+Not using expansion board.
+
+Make sure that `production` is set to `false` in the [config](/robot/src/controller/controller/config.json).
+
+```bash
+# robot/
+./run_docker
+```
+
+If you get an error when trying to `./run_all`, it might be because of non-root permissions.
+You can try to delete the `build`, `install` and `log` folders and run `./colcon` again.
+
+
+### Error: Access already in use when trying to start
+Make sure the Meta Quest 3 headset has closed the app, and run `./kill_address`.
+
 
 ## Prerequisites
 ### Install Docker
@@ -48,7 +71,7 @@ sudo usermod -aG docker $USER
 ## Running
 ```bash
 # robot/
-./run_docker # starts the container
+./run_docker # or ./run_docker_production starts the container
 ./colcon # builds the ROS2 packages
 ./run_all # starts all ROS2 nodes
 ```
@@ -91,8 +114,10 @@ ros2 pkg create --build-type ament_python package_name
 ## Documentation
 ```bash
 # install sphinx
-sudo apt-get install python3-sphinx python3-sphinx-rtd-theme
+sudo apt-get install python3-sphinx 
+pip3 install furo sphinxcontrib-jquery --break-system-packages
 cd docs/
+make clean
 make html
 ```
 

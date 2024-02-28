@@ -26,6 +26,13 @@ robot
     :undoc-members:
     :private-members:
 
+utils
+-----
+.. automodule:: robot.src.controller.controller.utils
+    :members:
+    :undoc-members:
+    :private-members:
+
 rosmaster
 ---------
 .. automodule:: robot.src.controller.controller.rosmaster

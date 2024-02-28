@@ -8,7 +8,7 @@ class Robot:
     PINCH_ANGLE = 180
     RESET_WRIST_ANGLE = 135
     RESET_ARM_ROTATION_ANGLE = 90
-    RESET_ARM_ELBOW_ANGLE = 90
+    RESET_ARM_SHOULDER_ANGLE = 90
 
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
@@ -30,7 +30,7 @@ class Robot:
         """Resets the robot."""
         self.reset_wrist()
         self.reset_arm_rotation()
-        self.reset_arm_elbow()
+        self.reset_arm_shoulder()
 
     def get_speed(self) -> int:
         """Returns the speed.
@@ -136,12 +136,12 @@ class Robot:
         """
         self.ros_master.set_uart_servo_angle(1, self.RESET_ARM_ROTATION_ANGLE + angle)
 
-    def reset_arm_elbow(self) -> None:
-        """Resets the arm elbow to its default position."""
-        self.ros_master.set_uart_servo_angle(2, self.RESET_ARM_ELBOW_ANGLE)
+    def reset_arm_shoulder(self) -> None:
+        """Resets the arm shoulder to its default position."""
+        self.ros_master.set_uart_servo_angle(2, self.RESET_ARM_SHOULDER_ANGLE)
 
-    def set_arm_elbow(self, angle: int) -> None:
-        """Sets the arm elbow angle.
+    def set_arm_shoulder(self, angle: int) -> None:
+        """Sets the arm shoulder angle.
 
         Args:
             angle: angle
