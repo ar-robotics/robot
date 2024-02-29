@@ -1,5 +1,7 @@
+.. include:: ../../robot/src/vr_linker/README.rst
+
 vr-linker node
-==============
+--------------
 .. automodule:: robot.src.vr_linker.vr_linker.vr_linker_node
     :members:
     :undoc-members:

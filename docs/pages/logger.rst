@@ -1,5 +1,7 @@
-logger node
-===========
+.. include:: ../../robot/src/logger/README.rst
+
+logger_node
+-----------
 .. automodule:: robot.src.logger.logger.logger_node
     :members:
     :undoc-members:

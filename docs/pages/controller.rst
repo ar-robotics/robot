@@ -1,5 +1,7 @@
+.. include:: ../../robot/src/controller/README.rst
+
 controller node
-===============
+---------------
 .. automodule:: robot.src.controller.controller.controller_node
     :members:
     :undoc-members:

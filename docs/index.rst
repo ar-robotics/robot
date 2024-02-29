@@ -1,18 +1,14 @@
-Kromium robot documentation
-===========================
+robot
+=====
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   pages/interfaces
    pages/vr_linker
    pages/master
    pages/controller
    pages/logger
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
+.. include:: ../README.rst
