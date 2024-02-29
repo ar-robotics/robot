@@ -1,15 +1,20 @@
-from interfaces.msg import VRData
+try:
+    from interfaces.msg import VRData
 
-import rclpy
-from rclpy.node import Node
+    import rclpy
+    from rclpy.node import Node
+
+except ModuleNotFoundError:
+
+    class Node:
+        pass
+
 
 from .logger import Logger
 
-# from std_msgs.msg import String
-
 
 class LoggerNode(Node):
-    """Interacts with the Expansion board."""
+    """Logs messages from nodes."""
 
     def __init__(self):
         super().__init__("Logger")

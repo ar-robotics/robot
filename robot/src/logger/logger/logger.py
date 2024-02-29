@@ -4,24 +4,29 @@ import time
 from .utils import FileFormatter
 
 # TODO: add CSV also
-LOG_FILE = f"./logger/logs/{int(time.time())}.log"
+try:
+    LOG_FILE = f"./logger/logs/{int(time.time())}.log"
 
-file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    handlers=[
-        file_handler,
-    ],
-)
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[
+            file_handler,
+        ],
+    )
 
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(FileFormatter())
 
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(FileFormatter())
+# for documentation
+except FileNotFoundError:
+    pass
 
 
 class Logger:
     def __init__(self) -> None:
+        """Initializes the logger."""
         pass
 
     def log(self, topic: str, msg) -> None:

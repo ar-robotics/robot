@@ -1,7 +1,15 @@
-from interfaces.msg import VRData, VRHand, VRMode
+try:
+    from interfaces.msg import VRData, VRHand, VRMode
 
-import rclpy
-from rclpy.node import Node
+    import rclpy
+    from rclpy.node import Node
+
+# for building documentation
+except ModuleNotFoundError:
+
+    class Node:
+        pass
+
 
 from .modes import Mode
 
@@ -83,6 +91,11 @@ class MasterNode(Node):
         return Mode(mode)
 
     def handle_unsafe_vr_mode(self, msg) -> None:
+        """Handles VRMode messages.
+
+        Args:
+            msg: VRMode message
+        """
         self.not_emergency_mode()
         mode = self.int_to_mode(msg.mode)
 

@@ -1,9 +1,15 @@
 import socket
 
-from interfaces.msg import VRData, VRHand, VRMode
+try:
+    from interfaces.msg import VRData, VRHand, VRMode
 
-import rclpy
-from rclpy.node import Node
+    import rclpy
+    from rclpy.node import Node
+except ModuleNotFoundError:
+
+    class Node:
+        pass
+
 
 from .vr_linker import VRLinker
 
