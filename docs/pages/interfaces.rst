@@ -14,4 +14,3 @@ VRHand
 VRMode
 ------
 .. include:: ../../robot/src/interfaces/msg/VRMode.msg
-

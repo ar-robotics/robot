@@ -1,6 +1,8 @@
 from .robot import Direction, Robot
 from .utils import get_threshold
 
+import time
+
 
 class Controller:
     try:
@@ -141,20 +143,43 @@ class Controller:
             self.robot.beep()
 
             # reset arm
-            self.robot.reset_arm_rotation()
-            self.robot.reset_arm_shoulder()
-            self.robot.reset_arm_elbow()
-            self.robot.reset_arm_tilt()
+            # rotate arm out
+
+            self.robot.unpinch()
             self.robot.reset_wrist()
-            self.robot.pinch()
+            self.robot.set_arm_rotation(180)
+            self.robot.set_arm_tilt(90)
+            self.robot.set_arm_elbow(90)
+            self.robot.set_arm_shoulder(175)
+            time.sleep(0.5)
+
+            # rotate arm in
+            self.robot.set_arm_rotation(100)
+
+            self.robot.long_beep()
+            # self.robot.reset_arm_rotation()
+            # self.robot.reset_arm_shoulder()
+            # self.robot.reset_arm_elbow()
+            # self.robot.reset_arm_tilt()
+            # self.robot.reset_wrist()
+            # self.robot.pinch()
 
         if mode == 2:
             # beep twice in arm mode
             self.robot.beep()
             self.robot.beep()
 
-            self.robot.set_arm_tilt(90)
-            self.robot.unpinch()
+            self.robot.set_arm_rotation(180)
+            time.sleep(0.5)
+
+            self.robot.set_arm_shoulder(90)
+            time.sleep(0.25)
+            self.robot.set_arm_rotation(90)
+
+            self.robot.long_beep()
+
+            # self.robot.set_arm_tilt(90)
+            # self.robot.unpinch()
 
     def handle_vr_mode(self, msg) -> None:
         """Handles VRMode messages.

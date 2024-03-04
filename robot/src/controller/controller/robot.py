@@ -20,7 +20,7 @@ class Robot:
             production: if True, the robot will be controlled by the Expansion board.
         """
         if production:
-            self.ros_master = Rosmaster(com="/dev/ttyUSB0", delay=0.05, debug=True)
+            self.ros_master = Rosmaster(com="/dev/ttyUSB0", delay=0.08, debug=True)
 
             self.reset()
         else:
@@ -178,6 +178,12 @@ class Robot:
     def beep(self) -> None:
         """Beeps the robot for 100ms, used for indicating mode change."""
         duration = 100  # in ms
+        self.ros_master.set_beep(duration)
+        time.sleep(duration / 1000)
+
+    def long_beep(self) -> None:
+        """Beeps the robot for 200ms, used for indicating robot is ready."""
+        duration = 200
         self.ros_master.set_beep(duration)
         time.sleep(duration / 1000)
 
