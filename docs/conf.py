@@ -40,11 +40,11 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx_rtd_theme",
     "sphinx.ext.napoleon",
 ]
 
 autodoc_member_order = "bysource"
+autodoc_mock_imports = ["rclpy", "interfaces"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -65,15 +65,3 @@ napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
 html_theme = "furo"
-html_static_path = ["_static"]
-
-html_theme_options = {
-    # "collapse_navigation": False,
-    # "navigation_depth": 4,
-    # "includehidden": True,
-    # "prev_next_buttons_location": None,
-}
-
-html_css_files = [
-    "css/custom.css",
-]

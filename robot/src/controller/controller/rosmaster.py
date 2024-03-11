@@ -151,7 +151,7 @@ class Rosmaster(object):
 
     # 根据数据帧的类型来做出对应的解析
     # According to the type of data frame to make the corresponding parsing
-    def __parse_data(self, ext_type, ext_data):
+    def __parse_data(self, ext_type: int, ext_data) -> None:
         """Parses the data.
 
         Args:
@@ -286,7 +286,7 @@ class Rosmaster(object):
                 self.__read_car_type = car_type
 
     # 接收数据 receive data
-    def __receive_data(self):
+    def __receive_data(self) -> None:
         """Receives the data."""
         # 清空缓冲区
         self.ser.flushInput()
@@ -317,7 +317,7 @@ class Rosmaster(object):
 
     # 请求数据， function：对应要返回数据的功能字，parm：传入的参数。
     # Request data, function: corresponding function word to return data, parm: parameter passed in
-    def __request_data(self, function, param=0):
+    def __request_data(self, function, param: int = 0) -> None:
         """Requests the data.
 
         Args:
@@ -351,20 +351,17 @@ class Rosmaster(object):
         Returns:
             the value of the arm
         """
-        value = -1
-        if s_id == 1:
-            value = int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
-        elif s_id == 2:
-            value = int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
-        elif s_id == 3:
-            value = int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
-        elif s_id == 4:
-            value = int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
-        elif s_id == 5:
-            value = int((3700 - 380) * (s_angle - 0) / (270 - 0) + 380)
-        elif s_id == 6:
-            value = int((3100 - 900) * (s_angle - 0) / (180 - 0) + 900)
-        return value
+
+        if 1 <= s_id <= 4:
+            return int((3100 - 900) * (s_angle - 180) / (0 - 180) + 900)
+
+        if s_id == 5:
+            return int((3700 - 380) * (s_angle - 0) / (270 - 0) + 380)
+
+        if s_id == 6:
+            return int((3100 - 900) * (s_angle - 0) / (180 - 0) + 900)
+
+        return -1
 
     # 机械臂转化位置脉冲成角度（读取角度）
     # Arm converts position pulses into angles
@@ -378,20 +375,16 @@ class Rosmaster(object):
         Returns:
             the angle of the arm
         """
-        s_angle = -1
-        if s_id == 1:
-            s_angle = int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
-        elif s_id == 2:
-            s_angle = int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
-        elif s_id == 3:
-            s_angle = int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
-        elif s_id == 4:
-            s_angle = int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
-        elif s_id == 5:
-            s_angle = int((270 - 0) * (s_value - 380) / (3700 - 380) + 0 + 0.5)
-        elif s_id == 6:
-            s_angle = int((180 - 0) * (s_value - 900) / (3100 - 900) + 0 + 0.5)
-        return s_angle
+        if 1 <= s_id <= 4:
+            return int((s_value - 900) * (0 - 180) / (3100 - 900) + 180 + 0.5)
+
+        if s_id == 5:
+            return int((270 - 0) * (s_value - 380) / (3700 - 380) + 0 + 0.5)
+
+        if s_id == 6:
+            return int((180 - 0) * (s_value - 900) / (3100 - 900) + 0 + 0.5)
+
+        return -1
 
     # 限制电机输入的PWM占空比数值，value=127则保持原来的数据，不修改当前电机速度
     # Limit the PWM duty ratio value of motor input, value=127, keep the original data, do not modify the current motor speed
@@ -415,7 +408,7 @@ class Rosmaster(object):
 
     # 开启接收和处理数据的线程
     # Start the thread that receives and processes data
-    def create_receive_threading(self):
+    def create_receive_threading(self) -> None:
         """Creates the receive threading."""
         try:
             if self.__uart_state == 0:
@@ -437,7 +430,7 @@ class Rosmaster(object):
     # enable=True, The underlying expansion board sends four different packets of data every 10 milliseconds, so each packet is refreshed every 40 milliseconds.
     # If enable=False, the report is not sent.
     # forever=True for permanent, =False for temporary
-    def set_auto_report_state(self, enable, forever=False):
+    def set_auto_report_state(self, enable: bool, forever: bool = False) -> None:
         """Sets the auto report state.
 
         Args:
@@ -473,7 +466,7 @@ class Rosmaster(object):
     # on_time>=10：响xx毫秒后自动关闭（on_time是10的倍数）。
     # Buzzer switch. On_time =0: the buzzer is off. On_time =1: the buzzer keeps ringing
     # On_time >=10: automatically closes after xx milliseconds (on_time is a multiple of 10)
-    def set_beep(self, on_time: int):
+    def set_beep(self, on_time: int) -> None:
         """Sets the beep (buzzer).
 
         Args:
@@ -555,14 +548,18 @@ class Rosmaster(object):
             angle_s4: the angle of the fourth servo
         """
         try:
-            if angle_s1 < 0 or angle_s1 > 180:
-                angle_s1 = 255
-            if angle_s2 < 0 or angle_s2 > 180:
-                angle_s2 = 255
-            if angle_s3 < 0 or angle_s3 > 180:
-                angle_s3 = 255
-            if angle_s4 < 0 or angle_s4 > 180:
-                angle_s4 = 255
+            for angle in [angle_s1, angle_s2, angle_s3, angle_s4]:
+                if angle < 0 or angle > 180:
+                    angle = 255
+
+            # if angle_s1 < 0 or angle_s1 > 180:
+            #     angle_s1 = 255
+            # if angle_s2 < 0 or angle_s2 > 180:
+            #     angle_s2 = 255
+            # if angle_s3 < 0 or angle_s3 > 180:
+            #     angle_s3 = 255
+            # if angle_s4 < 0 or angle_s4 > 180:
+            #     angle_s4 = 255
             cmd = [
                 self.__HEAD,
                 self.__DEVICE_ID,
@@ -703,7 +700,7 @@ class Rosmaster(object):
     # State =[0~6],=0 stop,=1 forward,=2 backward,=3 left,=4 right,=5 spin left,=6 spin right
     # Speed =[-100, 100], =0 Stop.
     # Adjust =True Activate the gyroscope auxiliary motion direction.  If =False, the function is disabled.(This function is not enabled)
-    def set_car_run(self, state, speed, adjust=False):
+    def set_car_run(self, state: int, speed: int, adjust: bool = False) -> None:
         """Control the car to move forward, backward, left, right, etc.
 
         Args:
@@ -739,7 +736,7 @@ class Rosmaster(object):
 
     # 小车运动控制,
     # Car movement control
-    def set_car_motion(self, v_x, v_y, v_z):
+    def set_car_motion(self, v_x: float, v_y: float, v_z: float) -> None:
         """Control the car movement.
 
         Args:
@@ -791,7 +788,7 @@ class Rosmaster(object):
     # forever=True for permanent, =False for temporary.
     # Since permanent storage needs to be written into the chip flash, which takes a long time to operate, delay is added to avoid packet loss caused by MCU.
     # Temporary effect fast response, single effective, data will not be maintained after restarting the single chip
-    def set_pid_param(self, kp, ki, kd, forever=False):
+    def set_pid_param(self, kp: int, ki: int, kd: int, forever: bool = False) -> None:
         """Sets the PID parameters.
 
         Args:
@@ -832,7 +829,7 @@ class Rosmaster(object):
 
     # 设置小车类型
     # Set car Type
-    def set_car_type(self, car_type: int):
+    def set_car_type(self, car_type: int) -> None:
         """Sets the car type.
 
         Args:
@@ -864,7 +861,9 @@ class Rosmaster(object):
     # Control bus steering gear.  Servo_id :[1-255], indicating the ID of the steering gear to be controlled. If ID =254, control all connected steering gear.
     # pulse_value=[96,4000] indicates the position to which the steering gear will run.
     # run_time indicates the running time (ms). The shorter the time, the faster the steering gear rotates.  The minimum value is 0 and the maximum value is 2000
-    def set_uart_servo(self, servo_id, pulse_value, run_time=500):
+    def set_uart_servo(
+        self, servo_id: int, pulse_value: int, run_time: int = 500
+    ) -> None:
         """Sets the position of one of the servos (on the arm).
 
         Args:
@@ -912,7 +911,9 @@ class Rosmaster(object):
     # run_time表示运行的时间(ms),时间越短,舵机转动越快。最小为0，最大为2000
     # Set bus steering gear Angle interface: s_id:[1,6], s_angle: 1-4:[0, 180], 5:[0, 270], 6:[0, 180], set steering gear to move to the Angle.
     # run_time indicates the running time (ms). The shorter the time, the faster the steering gear rotates.  The minimum value is 0 and the maximum value is 2000
-    def set_uart_servo_angle(self, s_id: int, s_angle: int, run_time: int = 500):
+    def set_uart_servo_angle(
+        self, s_id: int, s_angle: int, run_time: int = 500
+    ) -> None:
         """Sets the angle of one of the servos (on the arm).
         Degrees: 1-4, 6:[0, 180], 5:[0, 270]
 
@@ -928,52 +929,29 @@ class Rosmaster(object):
             s_angle: the angle of the servo
             run_time: the running time in milliseconds
         """
-        try:
-            if s_id == 1:
-                if 0 <= s_angle <= 180:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_1 set error!")
-            elif s_id == 2:
-                if 0 <= s_angle <= 180:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_2 set error!")
-            elif s_id == 3:
-                if 0 <= s_angle <= 180:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_3 set error!")
-            elif s_id == 4:
-                if 0 <= s_angle <= 180:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_4 set error!")
-            elif s_id == 5:
-                if 0 <= s_angle <= 270:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_5 set error!")
-            elif s_id == 6:
-                if 0 <= s_angle <= 180:
-                    value = self.__arm_convert_value(s_id, s_angle)
-                    self.set_uart_servo(s_id, value, run_time)
-                else:
-                    print("angle_6 set error!")
-        except:
-            print("---set_uart_servo_angle error! ID=%d---" % s_id)
-            pass
+        for i in range(1, 6 + 1):
+            if s_id != i:
+                continue
+
+            # out of range for all servos
+            if 0 > s_angle or s_angle > 270:
+                print(f"angle_{i} set error!")
+                return
+
+            # only servo 5 can rotate up to 270 degrees
+            if s_angle > 180 and i != 5:
+                print(f"angle_{i} set error!")
+                return
+
+            value = self.__arm_convert_value(s_id, s_angle)
+            self.set_uart_servo(s_id, value, run_time)
+            return
 
     # 设置总线舵机的ID号(谨慎使用)，servo_id=[1-250]。
     # 运行此函数前请确认只连接一个总线舵机，否则会把所有已连接的总线舵机都设置成同一个ID，造成控制混乱。
     # Set the bus servo ID(Use with caution), servo_id=[1-250].
     # Before running this function, please confirm that only one bus actuator is connected. Otherwise, all connected bus actuators will be set to the same ID, resulting in confusion of control
-    def set_uart_servo_id(self, servo_id):
+    def set_uart_servo_id(self, servo_id: int) -> None:
         """Sets the ID of the bus servo.
 
         Args:
@@ -1006,7 +984,7 @@ class Rosmaster(object):
     # Turn off/on the bus steering gear torque force, enable=[0, 1].
     # enable=0: Turn off the torque force of the steering gear, the steering gear can be turned by hand, but the command cannot control the rotation;
     # enable=1: Turn on torque force, command can control rotation, can not turn steering gear by hand
-    def set_uart_servo_torque(self, enable):
+    def set_uart_servo_torque(self, enable: bool) -> None:
         """Sets the torque of the bus servo.
 
         Args:
@@ -1030,7 +1008,7 @@ class Rosmaster(object):
 
     # 设置机械臂控制开关，enable=True正常发送控制协议，=False不发送控制协议
     # Set the control switch of the manipulator. Enable =True Indicates that the control protocol is normally sent; False indicates that the control protocol is not sent
-    def set_uart_servo_ctrl_enable(self, enable):
+    def set_uart_servo_ctrl_enable(self, enable: bool) -> None:
         """Sets the control switch of the manipulator.
 
         Args:
@@ -1044,8 +1022,8 @@ class Rosmaster(object):
     # 同时控制机械臂所有舵机的角度。
     # Meanwhile, the Angle of all steering gear of the manipulator is controlled
     def set_uart_servo_angle_array(
-        self, angle_s=[90, 90, 90, 90, 90, 180], run_time=500
-    ):
+        self, angle_s: list[int] = [90, 90, 90, 90, 90, 180], run_time: int = 500
+    ) -> None:
         """Sets the angle of all the servos in the arm.
 
         Args:
@@ -1115,7 +1093,7 @@ class Rosmaster(object):
 
     # 设置机械臂的中位偏差，servo_id=0~6， =0全部恢复出厂默认值
     # Run the following command to set the mid-bit deviation of the manipulator: servo_id=0 to 6, =0 Restore the factory default values
-    def set_uart_servo_offset(self, servo_id):
+    def set_uart_servo_offset(self, servo_id: int) -> int:
         """Sets the offset of the servo.
 
         Args:
@@ -1160,7 +1138,7 @@ class Rosmaster(object):
     # forever=True for permanent, =False for temporary.
     # Since permanent storage needs to be written into the chip flash, which takes a long time to operate, delay is added to avoid packet loss caused by MCU.
     # Temporary effect fast response, single effective, data will not be maintained after restarting the single chip
-    def set_akm_default_angle(self, angle, forever=False):
+    def set_akm_default_angle(self, angle: int, forever: bool = False) -> None:
         """Sets the default angle of the front wheel of the ackerman type (R2) car.
 
         Args:
@@ -1201,7 +1179,7 @@ class Rosmaster(object):
     # ctrl_car=False，只控制舵机角度，=True，控制舵机角度同时修改左右电机的速度。
     # Control the steering Angle of ackman type (R2) car relative to the default Angle, negative for left and positive for right, Angle =[-45, 45]
     # ctrl_car=False, only control the steering gear Angle, =True, control the steering gear Angle and modify the speed of the left and right motors.
-    def set_akm_steering_angle(self, angle, ctrl_car=False):
+    def set_akm_steering_angle(self, angle: int, ctrl_car: bool = False) -> None:
         """Controls the steering angle of the ackerman type (R2) car.
 
         Args:
@@ -1235,7 +1213,7 @@ class Rosmaster(object):
 
     # 重置小车flash保存的数据，恢复出厂默认值。
     # Reset the car flash saved data, restore the factory default value
-    def reset_flash_value(self):
+    def reset_flash_value(self) -> None:
         """Resets the car flash saved data, restore the factory default value."""
         try:
             cmd = [self.__HEAD, self.__DEVICE_ID, 0x04, self.FUNC_RESET_FLASH, 0x5F]
@@ -1252,7 +1230,7 @@ class Rosmaster(object):
 
     # 重置小车状态，包括停车，关灯，关蜂鸣器
     # Reset car status, including parking, lights off, buzzer off
-    def reset_car_state(self):
+    def reset_car_state(self) -> None:
         """Resets the car status, including parking, lights off, buzzer off."""
         try:
             cmd = [self.__HEAD, self.__DEVICE_ID, 0x04, self.FUNC_RESET_STATE, 0x5F]
@@ -1268,7 +1246,7 @@ class Rosmaster(object):
 
     # 清除单片机自动发送过来的缓存数据
     # Clear the cache data automatically sent by the MCU
-    def clear_auto_report_data(self):
+    def clear_auto_report_data(self) -> None:
         """Clears the cache data automatically sent by the MCU."""
         self.__battery_voltage = 0
         self.__ax = 0.0
@@ -1288,7 +1266,7 @@ class Rosmaster(object):
         self.__pitch = 0.0
 
     # 读取阿克曼类型(R2)小车前轮舵机默认角度。
-    def get_akm_default_angle(self):
+    def get_akm_default_angle(self) -> int:
         """Reads the default angle of the front wheel of the ackerman type (R2) car."""
         if not self.__akm_readed_angle:
             self.__request_data(self.FUNC_AKM_DEF_ANGLE, self.__AKM_SERVO_ID)
@@ -1304,7 +1282,7 @@ class Rosmaster(object):
 
     # 读取总线舵机位置参数, servo_id=[1-250], 返回：读到的ID，当前位置参数
     # Read bus servo position parameters, servo_id=[1-250], return: read ID, current position parameters
-    def get_uart_servo_value(self, servo_id):
+    def get_uart_servo_value(self, servo_id: int) -> tuple[int]:
         """Reads the position parameters of the bus servo.
 
         Args:
@@ -1330,64 +1308,33 @@ class Rosmaster(object):
 
     # 读取总线舵机的角度，s_id表示要读取的舵机的ID号，s_id=[1-6]
     # Read the Angle of the bus steering gear, s_id indicates the ID number of the steering gear to be read, s_id=[1-6]
-    def get_uart_servo_angle(self, s_id):
+    def get_uart_servo_angle(self, s_id: int) -> int:
         """Reads the angle of one of the servos (on the arm).
 
         Args:
             s_id: the id of the servo
         """
-        try:
-            angle = -1
-            read_id, value = self.get_uart_servo_value(s_id)
-            if s_id == 1 and read_id == 1:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 180 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            elif s_id == 2 and read_id == 2:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 180 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            elif s_id == 3 and read_id == 3:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 180 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            elif s_id == 4 and read_id == 4:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 180 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            elif s_id == 5 and read_id == 5:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 270 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            elif s_id == 6 and read_id == 6:
-                angle = self.__arm_convert_angle(s_id, value)
-                if angle > 180 or angle < 0:
-                    if self.__debug:
-                        print("read servo:%d out of range!" % s_id)
-                    angle = -1
-            else:
-                if self.__debug:
-                    print("read servo:%d error!" % s_id)
-            if self.__debug:
-                print("request angle %d: %d, %d" % (s_id, read_id, value))
-            return angle
-        except:
-            print("---get_uart_servo_angle error!---")
-            return -2
+        read_id, value = self.get_uart_servo_value(s_id)
+        angle = self.__arm_convert_angle(s_id, value)
+
+        if s_id != read_id:
+            print(f"servo_{s_id} read error!")
+            return -1
+
+        if angle > 270 or angle < 0:
+            print(f"servo_{s_id} out of range!")
+            return -1
+
+        if angle > 180 and s_id != 5:
+            print(f"servo_{s_id} out of range!")
+            return -1
+
+        print(f"request angle {s_id}: {read_id}, {value}")
+        return angle
 
     # 一次性读取六个舵机的角度[xx, xx, xx, xx, xx, xx]，如果某个舵机错误则那一位为-1
     # Read the angles of three steering gear [xx, xx, xx, xx, xx, xx] at one time. If one steering gear is wrong, that one is -1
-    def get_uart_servo_angle_array(self):
+    def get_uart_servo_angle_array(self) -> list[int]:
         """Reads the angles of all the servos (on the arm)."""
         try:
             angle = [-1, -1, -1, -1, -1, -1]
@@ -1414,7 +1361,7 @@ class Rosmaster(object):
 
     # 获取加速度计三轴数据，返回a_x, a_y, a_z
     # Get accelerometer triaxial data, return a_x, a_y, a_z
-    def get_accelerometer_data(self):
+    def get_accelerometer_data(self) -> tuple[float]:
         """Get the accelerometer triaxial data, return a_x, a_y, a_z."""
         a_x, a_y, a_z = self.__ax, self.__ay, self.__az
         # self.__ax, self.__ay, self.__az = 0.0, 0.0, 0.0
@@ -1422,14 +1369,14 @@ class Rosmaster(object):
 
     # 获取陀螺仪三轴数据，返回g_x, g_y, g_z
     # Get the gyro triaxial data, return g_x, g_y, g_z
-    def get_gyroscope_data(self):
+    def get_gyroscope_data(self) -> tuple[float]:
         """Get the gyro triaxial data, return g_x, g_y, g_z."""
         g_x, g_y, g_z = self.__gx, self.__gy, self.__gz
         # self.__gx, self.__gy, self.__gz = 0.0, 0.0, 0.0
         return g_x, g_y, g_z
 
     # 获取磁力计三轴数据，返回m_x, m_y, m_z
-    def get_magnetometer_data(self):
+    def get_magnetometer_data(self) -> tuple[float]:
         """Get the magnetometer triaxial data, return m_x, m_y, m_z."""
         m_x, m_y, m_z = self.__mx, self.__my, self.__mz
         # self.__mx, self.__my, self.__mz = 0.0, 0.0, 0.0
@@ -1437,13 +1384,13 @@ class Rosmaster(object):
 
     # 获取板子姿态角，返回yaw, roll, pitch
     # ToAngle=True返回角度，ToAngle=False返回弧度。
-    def get_imu_attitude_data(self, ToAngle=True):
+    def get_imu_attitude_data(self, to_angle:bool=True) -> tuple[float]:
         """Get the board attitude Angle, return yaw, roll, pitch.
 
         Args:
-            ToAngle: if True, return the Angle; if False, return the radian
+            to_angle: if True, return the Angle; if False, return the radian
         """
-        if ToAngle:
+        if to_angle:
             RtA = 57.2957795
             roll = self.__roll * RtA
             pitch = self.__pitch * RtA
@@ -1455,7 +1402,7 @@ class Rosmaster(object):
 
     # 获取小车速度，val_vx, val_vy, val_vz
     # Get the car speed, val_vx, val_vy, val_vz
-    def get_motion_data(self):
+    def get_motion_data(self) -> tuple[float]:
         """Get the car speed, val_vx, val_vy, val_vz."""
         val_vx = self.__vx
         val_vy = self.__vy
@@ -1465,7 +1412,7 @@ class Rosmaster(object):
 
     # 获取电池电压值
     # Get the battery voltage
-    def get_battery_voltage(self):
+    def get_battery_voltage(self) -> float:
         """Get the battery voltage."""
         vol = self.__battery_voltage / 10.0
         # self.__battery_voltage = 0
@@ -1473,7 +1420,7 @@ class Rosmaster(object):
 
     # 获取四路电机编码器数据
     # Obtain data of four-channel motor encoder
-    def get_motor_encoder(self):
+    def get_motor_encoder(self) -> tuple[int]:
         """Obtain data of four-channel motor encoder."""
         m1, m2, m3, m4 = (
             self.__encoder_m1,
@@ -1486,7 +1433,7 @@ class Rosmaster(object):
 
     # 获取小车的运动PID参数, 返回[kp, ki, kd]
     # Get the motion PID parameters of the dolly and return [kp, ki, kd]
-    def get_motion_pid(self):
+    def get_motion_pid(self) -> list[int]:
         """Get the motion PID parameters of the dolly and return [kp, ki, kd]"""
         self.__kp1 = 0
         self.__ki1 = 0
@@ -1510,7 +1457,7 @@ class Rosmaster(object):
 
     # 获取当前底层小车类型。
     # Gets the current car type from machine
-    def get_car_type_from_machine(self):
+    def get_car_type_from_machine(self) -> int:
         """Gets the current car type from machine."""
         self.__request_data(self.FUNC_SET_CAR_TYPE)
         for i in range(0, 20):
@@ -1523,7 +1470,7 @@ class Rosmaster(object):
 
     # 获取底层单片机版本号，如1.1
     # Get the underlying microcontroller version number, such as 1.1
-    def get_version(self):
+    def get_version(self) -> float:
         """Get the underlying microcontroller version number."""
         if self.__version_H == 0:
             self.__request_data(self.FUNC_VERSION)

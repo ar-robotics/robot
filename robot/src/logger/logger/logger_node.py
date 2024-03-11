@@ -1,14 +1,7 @@
-try:
-    from interfaces.msg import VRData
+from interfaces.msg import VRData
 
-    import rclpy
-    from rclpy.node import Node
-
-except ModuleNotFoundError:
-
-    class Node:
-        pass
-
+import rclpy
+from rclpy.node import Node
 
 from .logger import Logger
 

@@ -20,7 +20,8 @@ class Robot:
             production: if True, the robot will be controlled by the Expansion board.
         """
         if production:
-            self.ros_master = Rosmaster(com="/dev/ttyUSB0", delay=0.08, debug=True)
+            self.ros_master = Rosmaster(com="/dev/ttyUSB0", debug=True)
+            # self.ros_master = Rosmaster(com="/dev/ttyUSB1", delay=0.08, debug=True)
 
             self.reset()
         else:
@@ -28,6 +29,7 @@ class Robot:
 
         self.production = production
         self.speed = self.DEFAULT_SPEED  # NOTE: cant send negative values
+        self.position_data = {"x": 0, "y": 0, "rotation": 0, "time": time.time()}
 
     def reset(self) -> None:
         """Resets the robot."""

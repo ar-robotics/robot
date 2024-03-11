@@ -1,15 +1,7 @@
-try:
-    from interfaces.msg import VRData, VRHand, VRMode
+from interfaces.msg import VRData, VRHand, VRMode
 
-    import rclpy
-    from rclpy.node import Node
-
-# for building documentation
-except ModuleNotFoundError:
-
-    class Node:
-        pass
-
+import rclpy
+from rclpy.node import Node
 
 from .modes import Mode
 
