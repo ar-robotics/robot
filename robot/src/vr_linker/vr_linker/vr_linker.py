@@ -4,9 +4,8 @@ import time
 try:
     from interfaces.msg import VRData, VRHand, VRMode
 except ModuleNotFoundError:
-    # unittests have different path than the main program
-    # set them to None to avoid import errors
-    VRData, VRHand, VRMode = None, None, None
+    # unittest cannot find this module
+    pass
 
 
 class VRLinker:
@@ -37,6 +36,38 @@ class VRLinker:
             data: data
         """
         self.node.client_socket.sendall(self._to_json(data))
+
+    @staticmethod
+    def _get_vector_data(msg, key: str) -> list[float]:
+        """Gets the x, y, z data from a vector message.
+
+        Args:
+            msg: message
+            key: key to get data from
+
+        Returns:
+            x, y, z data
+        """
+        obj = getattr(msg, key)
+        return [getattr(obj, i) for i in ["x", "y", "z"]]
+
+    def handle_robot_data(self, msg) -> None:
+        """Receives RobotData messages and sends over socket.
+
+        Args:
+            msg: RobotData message
+        """
+        print(f"-> {time.time()} {msg}")
+
+        data = {
+            "accelerometer": self._get_vector_data(msg, "accelerometer"),
+            "gyroscope": self._get_vector_data(msg, "gyroscope"),
+            "magnetometer": self._get_vector_data(msg, "magnetometer"),
+            "motion": self._get_vector_data(msg, "motion"),
+            "voltage": msg.voltage,
+        }
+
+        self._send(data)
 
     def process_message(self) -> None:
         """Processes a message sent by the VR headset over TCP socket."""

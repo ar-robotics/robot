@@ -1,13 +1,13 @@
 vr_linker
 =========
 
-This is the node which connects the Meta Quest 3 VR headset to the ROS2 ecosystem.
+This is the node which connects the Meta Quest 3 VR headset to the ROS 2 ecosystem.
 It hosts a TCP socket server the headset can connect to. 
 Data received here gets sent to the ROS2 ecosystem.
 
 **Subscribed topics**
 
-* None
+* robot_data (RobotData): The robot data received from the robot, sent to the VR headset over socket.
 
 **Published topics**
 

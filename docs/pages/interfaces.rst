@@ -1,7 +1,4 @@
-interfaces
-==========
-
-Here are all the message interfaces used by ROS2.
+.. include:: ../../robot/src/interfaces/README.rst
 
 VRData
 ------
@@ -14,3 +11,8 @@ VRHand
 VRMode
 ------
 .. include:: ../../robot/src/interfaces/msg/VRMode.msg
+
+RobotData
+---------
+.. include:: ../../robot/src/interfaces/msg/RobotData.msg
+

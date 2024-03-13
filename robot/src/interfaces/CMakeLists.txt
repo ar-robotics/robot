@@ -27,8 +27,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Testing.msg"
-  "msg/PosRot.msg"
+  "msg/RobotData.msg"
   "msg/VRData.msg"
   "msg/VRHand.msg"
   "msg/VRMode.msg"

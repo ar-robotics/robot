@@ -2,7 +2,7 @@ import logging
 
 
 class FileFormatter(logging.Formatter):
-    _format = "%(filename)s %(asctime)s - [%(levelname)s]: %(message)s"
+    _format = "%(asctime)s.%(msecs)03d - [%(levelname)s]: %(message)s"
 
     FORMATS = {
         logging.DEBUG: _format,

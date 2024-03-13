@@ -1,10 +1,10 @@
-from interfaces.msg import VRData, VRHand, VRMode
+from interfaces.msg import RobotData, VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
 
 from .controller import Controller
-from .utils import get_production
+from .utils import get_data_hertz, get_production, get_sleep_mode_hertz
 
 
 class ControllerNode(Node):
@@ -16,9 +16,15 @@ class ControllerNode(Node):
         print(self.__class__.__name__, "is running!")
 
         is_production = get_production()
+        data_hertz = get_data_hertz()
+        sleep_mode_hertz = get_sleep_mode_hertz()
+
         self.controller = Controller(is_production)
 
-        # NOTE: subscribers
+        # publishers
+        self.pub_robot_data = self.create_publisher(RobotData, "robot_data", 1)
+
+        # subscribers
         self.sub_vr = self.create_subscription(
             VRData, "vr_data", self.controller.handle_vr_data, 1
         )
@@ -27,6 +33,12 @@ class ControllerNode(Node):
         )
         self.sub_vr_mode = self.create_subscription(
             VRMode, "vr_mode", self.controller.handle_vr_mode, 1
+        )
+
+        # timers
+        self.create_timer(1 / data_hertz, self.controller.get_robot_data)
+        self.create_timer(
+            1 / sleep_mode_hertz, self.controller.check_last_message_received
         )
 
 

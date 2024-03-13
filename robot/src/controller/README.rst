@@ -12,5 +12,5 @@ It is responsible for controlling the robot's movement and arm movements.
 
 **Published topics**
 
-* None
+* robot_data (RobotData) - Data from the robot such as voltage, speed, gyroscope, etc.
 

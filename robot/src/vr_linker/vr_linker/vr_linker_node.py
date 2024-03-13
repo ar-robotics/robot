@@ -1,15 +1,9 @@
 import socket
 
-try:
-    from interfaces.msg import VRData, VRHand, VRMode
+from interfaces.msg import RobotData, VRData, VRHand, VRMode
 
-    import rclpy
-    from rclpy.node import Node
-except ModuleNotFoundError:
-
-    class Node:
-        pass
-
+import rclpy
+from rclpy.node import Node
 
 from .vr_linker import VRLinker
 
@@ -22,6 +16,11 @@ class VRLinkerNode(Node):
         print(self.__class__.__name__, "is running!")
 
         self.vr_linker = VRLinker(self)
+
+        # subscribers
+        self.sub_robot_data = self.create_subscription(
+            RobotData, "robot_data", self.vr_linker.handle_robot_data, 1
+        )
 
         # publishers
         self.pub_vr = self.create_publisher(VRData, "_vr_data", 1)

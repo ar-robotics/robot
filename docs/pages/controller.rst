@@ -14,9 +14,9 @@ controller
     :undoc-members:
     :private-members:
 
-direction
----------
-.. automodule:: robot.src.controller.controller.direction
+enums
+-----
+.. automodule:: robot.src.controller.controller.enums
     :members:
     :undoc-members:
     :private-members:

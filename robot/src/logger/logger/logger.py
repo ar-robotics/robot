@@ -19,8 +19,8 @@ try:
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(FileFormatter())
 
-# for documentation
 except FileNotFoundError:
+    # happens when running sphinx due to different file path
     pass
 
 
@@ -45,3 +45,27 @@ class Logger:
             msg: VRData message
         """
         self.log("_vr_data", msg)
+
+    def handle_vr_hand(self, msg) -> None:
+        """Handles VRHand messages.
+
+        Args:
+            msg: VRHand message
+        """
+        self.log("_vr_hand", msg)
+
+    def handle_vr_mode(self, msg) -> None:
+        """Handles VRMode messages.
+
+        Args:
+            msg: VRMode message
+        """
+        self.log("_vr_mode", msg)
+
+    def handle_robot_data(self, msg) -> None:
+        """Handles RobotData messages.
+
+        Args:
+            msg: RobotData message
+        """
+        self.log("robot_data", msg)

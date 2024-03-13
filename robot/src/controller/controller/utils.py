@@ -2,8 +2,13 @@ import json
 
 
 def get_config() -> dict:
-    """Returns the config."""
+    """Returns the config from a local JSON file.
+
+    JSON files do not get compiled, so values can be changed without recompiling the
+    code. Hence the reason for having some options in a JSON file.
+    """
     config = {}
+    # path for the Docker container
     path = "/robot/src/controller/controller/config.json"
 
     with open(path, "r") as f:
@@ -24,3 +29,13 @@ def get_production() -> bool:
     or not (false).
     """
     return get_config()["production"]
+
+
+def get_data_hertz() -> int:
+    """Returns the hertz of which robot data should be sent to the VR headset."""
+    return get_config()["data_hertz"]
+
+
+def get_sleep_mode_hertz() -> int:
+    """Returns the hertz of which how often the robot should check."""
+    return get_config()["sleep_mode_hertz"]
