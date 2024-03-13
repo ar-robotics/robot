@@ -14,6 +14,13 @@ controller
     :undoc-members:
     :private-members:
 
+exceptions
+----------
+.. automodule:: robot.src.controller.controller.exceptions
+    :members:
+    :undoc-members:
+    :private-members:
+
 enums
 -----
 .. automodule:: robot.src.controller.controller.enums

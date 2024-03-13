@@ -1,5 +1,17 @@
 import json
 
+from .exceptions import NotInProductionMode
+
+
+def in_production_mode(func):
+    def function_wrapper(self, *args, **kwargs):
+        if self.production:
+            return func(self, *args, **kwargs)
+
+        raise NotInProductionMode("Enable production mode to use this method.")
+
+    return function_wrapper
+
 
 def get_config() -> dict:
     """Returns the config from a local JSON file.

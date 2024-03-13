@@ -1,4 +1,4 @@
-from interfaces.msg import RobotData, VRData, VRHand, VRMode
+from interfaces.msg import Message, RobotData, VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
@@ -23,6 +23,7 @@ class ControllerNode(Node):
 
         # publishers
         self.pub_robot_data = self.create_publisher(RobotData, "robot_data", 1)
+        self.pub_message = self.create_publisher(Message, "message", 1)
 
         # subscribers
         self.sub_vr = self.create_subscription(
@@ -40,6 +41,13 @@ class ControllerNode(Node):
         self.create_timer(
             1 / sleep_mode_hertz, self.controller.check_last_message_received
         )
+
+        msg = Message()
+        msg.message = (
+            f"Using settings {is_production=}, {data_hertz=}, {sleep_mode_hertz=}"
+        )
+        msg.level = 20
+        self.pub_message.publish(msg)
 
 
 def main(args=None):

@@ -1,4 +1,4 @@
-from interfaces.msg import RobotData, VRData, VRHand, VRMode
+from interfaces.msg import Message, RobotData, VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
@@ -28,6 +28,9 @@ class LoggerNode(Node):
         )
         self.sub_robot_data = self.create_subscription(
             RobotData, "robot_data", self.logger.handle_robot_data, 1
+        )
+        self.sub_message = self.create_subscription(
+            Message, "message", self.logger.handle_message, 1
         )
 
 

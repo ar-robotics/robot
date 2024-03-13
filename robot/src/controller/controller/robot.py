@@ -2,17 +2,10 @@ import time
 
 from .enums import Direction, Preset
 from .rosmaster import Rosmaster
+from .utils import in_production_mode
 
 
 class Robot:
-    # DEFAULT_SPEED = 50
-    # UNPINCH_ANGLE = 45
-    # PINCH_ANGLE = 180
-    # RESET_WRIST_ANGLE = 135
-    # RESET_ARM_ROTATION_ANGLE = 90
-    # RESET_ARM_SHOULDER_ANGLE = 90
-    # RESET_ARM_ELBOW_ANGLE = 90
-
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
 
@@ -117,6 +110,7 @@ class Robot:
         """Drives the robot forward."""
         self.drive(Direction.FORWARD)
 
+    @in_production_mode
     def set_pinch(self, angle: int) -> None:
         """Sets the pinch angle.
 
@@ -127,12 +121,13 @@ class Robot:
 
     def pinch(self) -> None:
         """Pinches the "fingers"."""
-        self.ros_master.set_uart_servo_angle(6, Preset.PINCH_ANGLE)
+        self.set_pinch(Preset.PINCH_ANGLE)
 
     def unpinch(self) -> None:
         """Unpinches the "fingers"."""
-        self.ros_master.set_uart_servo_angle(6, Preset.UNPINCH_ANGLE)
+        self.set_pinch(Preset.UNPINCH_ANGLE)
 
+    @in_production_mode
     def get_wrist(self) -> int:
         """Returns the wrist angle.
 
@@ -141,6 +136,7 @@ class Robot:
         """
         return self.ros_master.get_uart_servo_angle(5)
 
+    @in_production_mode
     def set_wrist(self, angle: int) -> None:
         """Turns the wrist. Angle should be between 0 and 270.
 
@@ -151,8 +147,9 @@ class Robot:
 
     def reset_wrist(self) -> None:
         """Resets the wrist to its default position."""
-        self.set_wrist(Preset.RESET_WRIST_ANGLE)
+        self.set_wrist(Preset.WRIST_ANGLE)
 
+    @in_production_mode
     def get_arm_rotation(self) -> int:
         """Returns the arm rotation angle.
 
@@ -161,6 +158,7 @@ class Robot:
         """
         return self.ros_master.get_uart_servo_angle(1)
 
+    @in_production_mode
     def set_arm_rotation(self, angle: int) -> None:
         """Sets the arm rotation angle.
 
@@ -171,8 +169,9 @@ class Robot:
 
     def reset_arm_rotation(self) -> None:
         """Resets the arm rotation to its default position."""
-        self.set_arm_rotation(Preset.RESET_ARM_ROTATION_ANGLE)
+        self.set_arm_rotation(Preset.ARM_ROTATION_ANGLE)
 
+    @in_production_mode
     def get_arm_shoulder(self) -> int:
         """Returns the arm shoulder angle.
 
@@ -181,6 +180,7 @@ class Robot:
         """
         return self.ros_master.get_uart_servo_angle(2)
 
+    @in_production_mode
     def set_arm_shoulder(self, angle: int) -> None:
         """Sets the arm shoulder angle.
 
@@ -195,12 +195,14 @@ class Robot:
         Args:
             angle: angle
         """
-        self.set_arm_shoulder(Preset.RESET_ARM_ROTATION_ANGLE + angle)
+        self.set_arm_shoulder(Preset.ARM_ROTATION_ANGLE + angle)
 
+    @in_production_mode
     def reset_arm_shoulder(self) -> None:
         """Resets the arm shoulder to its default position."""
-        self.ros_master.set_uart_servo_angle(2, Preset.RESET_ARM_SHOULDER_ANGLE)
+        self.ros_master.set_uart_servo_angle(2, Preset.ARM_SHOULDER_ANGLE)
 
+    @in_production_mode
     def get_arm_elbow(self) -> int:
         """Returns the arm elbow angle.
 
@@ -209,6 +211,7 @@ class Robot:
         """
         return self.ros_master.get_uart_servo_angle(3)
 
+    @in_production_mode
     def set_arm_elbow(self, angle: int) -> None:
         """Sets the arm elbow angle.
 
@@ -219,8 +222,9 @@ class Robot:
 
     def reset_arm_elbow(self) -> None:
         """Resets the arm elbow to its default position."""
-        self.set_arm_elbow(Preset.RESET_ARM_ELBOW_ANGLE)
+        self.set_arm_elbow(Preset.ARM_ELBOW_ANGLE)
 
+    @in_production_mode
     def get_arm_tilt(self) -> int:
         """Returns the arm tilt angle.
 
@@ -229,6 +233,7 @@ class Robot:
         """
         return self.ros_master.get_uart_servo_angle(4)
 
+    @in_production_mode
     def set_arm_tilt(self, angle: int) -> None:
         """Sets the arm tilt angle.
 
@@ -241,6 +246,7 @@ class Robot:
         """Resets the arm tilt to its default position."""
         self.set_arm_tilt(0)
 
+    @in_production_mode
     def beep(self) -> None:
         """Beeps the robot for 100ms, used for indicating mode change."""
         duration = 100  # in ms
@@ -249,10 +255,14 @@ class Robot:
 
     def long_beep(self) -> None:
         """Beeps the robot for 200ms, used for indicating robot is ready."""
+        if not self.production:
+            return
+
         duration = 200
         self.ros_master.set_beep(duration)
         time.sleep(duration / 1000)
 
+    @in_production_mode
     def get_data(self) -> dict:
         return {
             "accelerometer": self.ros_master.get_accelerometer_data(),

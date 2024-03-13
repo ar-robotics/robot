@@ -86,3 +86,10 @@ class TestController(TestCase):
 
         self.assertTrue(self.controller.is_sleeping)
         self.assertEqual(self.controller.robot.last_direction, Direction.STOP)
+
+    def test_speed_out_of_range(self):
+        self.assertFalse(self.controller._speed_out_of_range(50))
+        self.assertFalse(self.controller._speed_out_of_range(0))
+        self.assertFalse(self.controller._speed_out_of_range(100))
+        self.assertTrue(self.controller._speed_out_of_range(101))
+        self.assertTrue(self.controller._speed_out_of_range(-20))

@@ -30,13 +30,21 @@ class Logger:
         pass
 
     def log(self, topic: str, msg) -> None:
-        """Logs messages.
+        """Logs messages to a local file.
+
+        Will log messages as DEBUG, except for "message" topic.
+        For "message" topic, it will log with the level specified in the message.
 
         Args:
             topic: topic
             msg: message
         """
-        logging.info(f"{topic}: {msg}")
+        if topic != "message":
+            logging.debug(f"{topic=}: {msg}")
+
+        # logs with correct level
+        # 10 is DEBUG, 20 is INFO, 30 is WARNING, 40 is ERROR, 50 is CRITICAL
+        logging.log(msg.level, f"{msg.message}")
 
     def handle_vr_data(self, msg) -> None:
         """Handles VRData messages.
@@ -69,3 +77,11 @@ class Logger:
             msg: RobotData message
         """
         self.log("robot_data", msg)
+
+    def handle_message(self, msg) -> None:
+        """Handles Message messages.
+
+        Args:
+            msg: Message message
+        """
+        self.log("message", msg)

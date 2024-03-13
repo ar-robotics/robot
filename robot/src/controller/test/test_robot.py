@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from controller.enums import Direction, Preset
+from controller.exceptions import NotInProductionMode
 from controller.robot import Robot
 
 
@@ -19,3 +20,11 @@ class TestDirections(TestCase):
         self.assertEqual(Preset.SPEED, 50)
         self.assertEqual(Preset.WRIST_ANGLE, 135)
         self.assertEqual(Preset.ARM_ELBOW_ANGLE, 90)
+
+    def test_production_mode(self):
+        self.assertRaises(NotInProductionMode, self.robot.beep)
+        self.assertRaises(NotInProductionMode, self.robot.reset_arm_rotation)
+
+        self.robot.production = True
+
+        self.assertRaises(AttributeError, self.robot.beep)

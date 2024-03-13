@@ -11,11 +11,6 @@ from .utils import get_threshold
 
 
 class Controller:
-    try:
-        THRESHOLD = get_threshold()
-    except FileNotFoundError:
-        # for building the documentation
-        THRESHOLD = 0.3
 
     def __init__(self, production: bool = True) -> None:
         """Interacts with the Expansion board.
@@ -24,6 +19,7 @@ class Controller:
             production: if True, the robot will be controlled by the Expansion board.
         """
         self.robot = Robot(production)
+        self.THRESHOLD = get_threshold()
         self.last_command_received = 0
         self.is_sleeping = False
         self.last_mode = -1
@@ -66,10 +62,9 @@ class Controller:
         Args:
             x: x coordinate
             y: y coordinate
-            threshold: positive threshold value
 
         Returns:
-            direction
+            direction to drive in
         """
         upper_threshold = self.THRESHOLD
         lower_threshold = -self.THRESHOLD
@@ -133,33 +128,27 @@ class Controller:
         if self.last_mode == -1:
             self.last_mode = mode
 
-        if mode == 1:
+        if mode == 1:  # drive mode
             # beep once in drive mode
             self.robot.beep()
 
             # reset arm
             # rotate arm out
-
             self.robot.unpinch()
             self.robot.reset_wrist()
             self.robot.set_arm_rotation(180)
-            self.robot.set_arm_tilt(90)
-            self.robot.set_arm_elbow(90)
+            self.robot.reset_arm_tilt()
+            self.robot.reset_arm_elbow()
             self.robot.set_arm_shoulder(175)
             time.sleep(0.5)
 
             # rotate arm in
             self.robot.set_arm_rotation(100)
+            time.sleep(0.5)
 
             self.robot.long_beep()
-            # self.robot.reset_arm_rotation()
-            # self.robot.reset_arm_shoulder()
-            # self.robot.reset_arm_elbow()
-            # self.robot.reset_arm_tilt()
-            # self.robot.reset_wrist()
-            # self.robot.pinch()
 
-        if mode == 2:
+        if mode == 2:  # arm mode
             # beep twice in arm mode
             self.robot.beep()
             self.robot.beep()
@@ -170,20 +159,21 @@ class Controller:
             self.robot.set_arm_shoulder(90)
             time.sleep(0.25)
             self.robot.set_arm_rotation(90)
+            time.sleep(0.5)
 
             self.robot.long_beep()
-
-            # self.robot.set_arm_tilt(90)
-            # self.robot.unpinch()
 
     def check_last_message_received(self) -> None:
         """Checks if the last message was received more than 5 seconds ago.
 
-        If so, the robot will stop and sleep.
+        If so, the robot will stop and sleep. Will long beep twice to indicate this.
         """
         if time.time() > self.last_command_received + 5:
             self.robot.stop()
             self.is_sleeping = True
+
+            self.robot.long_beep()
+            self.robot.long_beep()
 
     def _set_last_message_received(self) -> None:
         """Sets the last message received time to the current time."""
@@ -196,17 +186,6 @@ class Controller:
         Args:
             msg: VRHand message
         """
-        # pinch, wrist = msg.pinch, msg.wrist
-        # print(f"got {pinch=} {wrist=}")
-
-        # if pinch not in range(45, 180 + 1):
-        #     pinch = self.robot.UNPINCH_ANGLE
-
-        # if wrist not in range(0, 180 + 1):
-        #     wrist = self.robot.WRIST_RESET_ANGLE
-        #
-        # self.robot.set_wrist(wrist)
-        # self.robot.set_pinch(pinch)
         self._set_last_message_received()
 
         x, y, pinch, strength = msg.x, msg.y, msg.pinch, msg.strength
@@ -223,6 +202,10 @@ class Controller:
 
         print(f"- {x_angle=} {y_angle=} {pinch_angle=}")
 
+    @staticmethod
+    def _speed_out_of_range(speed: int) -> bool:
+        return speed not in range(0, 100 + 1)
+
     def handle_vr_data(self, msg) -> None:
         """Handles VRData messages.
 
@@ -235,7 +218,7 @@ class Controller:
         print(f"got {x=} {y=} {speed=}")
         direction = self.convert_coordinates_to_direction(x, y)
 
-        if speed not in range(0, 100 + 1):
+        if self._speed_out_of_range(speed):
             speed = self.robot.DEFAULT_SPEED
 
         if speed != self.robot.speed:
