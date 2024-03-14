@@ -290,30 +290,45 @@ class Rosmaster(object):
         """Receives the data."""
         # 清空缓冲区
         self.ser.flushInput()
+
         while True:
-            head1 = bytearray(self.ser.read())[0]
-            if head1 == self.__HEAD:
-                head2 = bytearray(self.ser.read())[0]
+            try:
+                head_1 = bytearray(self.ser.read())[0]
+
+                if head_1 != self.__HEAD:
+                    continue
+
+                head_2 = bytearray(self.ser.read())[0]
                 check_sum = 0
                 rx_check_num = 0
-                if head2 == self.__DEVICE_ID - 1:
-                    ext_len = bytearray(self.ser.read())[0]
-                    ext_type = bytearray(self.ser.read())[0]
-                    ext_data = []
-                    check_sum = ext_len + ext_type
-                    data_len = ext_len - 2
-                    while len(ext_data) < data_len:
-                        value = bytearray(self.ser.read())[0]
-                        ext_data.append(value)
-                        if len(ext_data) == data_len:
-                            rx_check_num = value
-                        else:
-                            check_sum = check_sum + value
-                    if check_sum % 256 == rx_check_num:
-                        self.__parse_data(ext_type, ext_data)
+
+                if head_2 != self.__DEVICE_ID - 1:
+                    continue
+
+                ext_len = bytearray(self.ser.read())[0]
+                ext_type = bytearray(self.ser.read())[0]
+                ext_data = []
+                check_sum = ext_len + ext_type
+                data_len = ext_len - 2
+
+                while len(ext_data) < data_len:
+                    value = bytearray(self.ser.read())[0]
+                    ext_data.append(value)
+
+                    if len(ext_data) == data_len:
+                        rx_check_num = value
                     else:
-                        if self.__debug:
-                            print("check sum error:", ext_len, ext_type, ext_data)
+                        check_sum = check_sum + value
+
+                if check_sum % 256 == rx_check_num:
+                    self.__parse_data(ext_type, ext_data)
+
+                else:
+                    if self.__debug:
+                        print("check sum error:", ext_len, ext_type, ext_data)
+
+            except BaseException:
+                pass
 
     # 请求数据， function：对应要返回数据的功能字，parm：传入的参数。
     # Request data, function: corresponding function word to return data, parm: parameter passed in
@@ -1384,7 +1399,7 @@ class Rosmaster(object):
 
     # 获取板子姿态角，返回yaw, roll, pitch
     # ToAngle=True返回角度，ToAngle=False返回弧度。
-    def get_imu_attitude_data(self, to_angle:bool=True) -> tuple[float]:
+    def get_imu_attitude_data(self, to_angle: bool = True) -> tuple[float]:
         """Get the board attitude Angle, return yaw, roll, pitch.
 
         Args:

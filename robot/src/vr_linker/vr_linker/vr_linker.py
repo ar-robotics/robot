@@ -51,6 +51,18 @@ class VRLinker:
         obj = getattr(msg, key)
         return [getattr(obj, i) for i in ["x", "y", "z"]]
 
+    def _calculate_speed(speeds: list[float]) -> float:
+        """Calculates the speed from the x and y speeds.
+
+        Args:
+            speeds: x and y speeds
+
+        Returns:
+            speed
+        """
+        v_x, v_y, v_z = speeds
+        return (v_x**2 + v_y**2 + v_z**2) ** 0.5
+
     def handle_robot_data(self, msg) -> None:
         """Receives RobotData messages and sends over socket.
 
@@ -59,13 +71,20 @@ class VRLinker:
         """
         print(f"-> {time.time()} {msg}")
 
+        motion = self._get_vector_data(msg, "motion")
+        speed = self._calculate_speed(motion)
+
         data = {
             "accelerometer": self._get_vector_data(msg, "accelerometer"),
             "gyroscope": self._get_vector_data(msg, "gyroscope"),
             "magnetometer": self._get_vector_data(msg, "magnetometer"),
-            "motion": self._get_vector_data(msg, "motion"),
+            "motion": motion,
+            "speed": speed,
             "voltage": msg.voltage,
+            "mode": msg.mode,
         }
+
+        print(f"{speed=} {msg.mode=} {msg.voltage=}")
 
         self._send(data)
 

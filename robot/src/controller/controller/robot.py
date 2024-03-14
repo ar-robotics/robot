@@ -12,18 +12,18 @@ class Robot:
         Args:
             production: if True, the robot will be controlled by the Expansion board.
         """
+        self.ros_master = None
+        self.production = production
+        self.speed = Preset.SPEED  # NOTE: cant send negative values
+
         if production:
-            self.ros_master = Rosmaster(com="/dev/ttyUSB0", debug=True)
+            self.ros_master = Rosmaster(com="/dev/expbrd", debug=True)
             # self.ros_master = Rosmaster(com="/dev/ttyUSB1", delay=0.08, debug=True)
 
             self.ros_master.create_receive_threading()
 
             self.reset()
-        else:
-            self.ros_master = None
 
-        self.production = production
-        self.speed = Preset.SPEED  # NOTE: cant send negative values
         self.last_direction = Direction.STOP
 
     def _reset_arm(self) -> None:
@@ -197,10 +197,9 @@ class Robot:
         """
         self.set_arm_shoulder(Preset.ARM_ROTATION_ANGLE + angle)
 
-    @in_production_mode
     def reset_arm_shoulder(self) -> None:
         """Resets the arm shoulder to its default position."""
-        self.ros_master.set_uart_servo_angle(2, Preset.ARM_SHOULDER_ANGLE)
+        self.set_arm_shoulder(Preset.ARM_SHOULDER_ANGLE)
 
     @in_production_mode
     def get_arm_elbow(self) -> int:
@@ -244,7 +243,7 @@ class Robot:
 
     def reset_arm_tilt(self) -> None:
         """Resets the arm tilt to its default position."""
-        self.set_arm_tilt(0)
+        self.set_arm_tilt(Preset.ARM_TILT_ANGLE)
 
     @in_production_mode
     def beep(self) -> None:

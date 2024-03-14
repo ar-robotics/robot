@@ -1,4 +1,5 @@
 import socket
+import time
 
 from interfaces.msg import Message, RobotData, VRData, VRHand, VRMode
 
@@ -51,6 +52,7 @@ class VRLinkerNode(Node):
         try:
             while True:
                 self.vr_linker.process_message()
+                time.sleep(0.05)
 
         except BaseException as e:
             print(f"Error: {e}")

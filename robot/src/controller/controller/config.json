@@ -1,6 +1,7 @@
 {
-    "production": false,
+    "production": true,
     "threshold": 0.3,
-    "data_hertz": 1,
-    "sleep_mode_hertz": 2
+    "data_hertz": 0.2,
+    "sleep_mode_hertz": 2,
+    "sleep_mode_after": 5
 }

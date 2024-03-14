@@ -3,3 +3,4 @@ geometry_msgs/Vector3 gyroscope
 geometry_msgs/Vector3 magnetometer
 geometry_msgs/Vector3 motion
 float64 voltage
+string mode

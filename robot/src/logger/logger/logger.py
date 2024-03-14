@@ -41,6 +41,7 @@ class Logger:
         """
         if topic != "message":
             logging.debug(f"{topic=}: {msg}")
+            return
 
         # logs with correct level
         # 10 is DEBUG, 20 is INFO, 30 is WARNING, 40 is ERROR, 50 is CRITICAL

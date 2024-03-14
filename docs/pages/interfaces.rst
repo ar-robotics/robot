@@ -16,3 +16,6 @@ RobotData
 ---------
 .. include:: ../../robot/src/interfaces/msg/RobotData.msg
 
+Message
+-------
+.. include:: ../../robot/src/interfaces/msg/Message.msg

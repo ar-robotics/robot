@@ -1,4 +1,4 @@
-from interfaces.msg import VRData, VRHand, VRMode
+from interfaces.msg import Message, RobotData, VRData, VRHand, VRMode
 
 import rclpy
 from rclpy.node import Node
@@ -18,7 +18,7 @@ class MasterNode(Node):
 
         self.mode = Mode.IDLE
 
-        # NOTE: subscribers
+        # subscribers
         self.sub_vr = self.create_subscription(
             VRData, "_vr_data", self.handle_unsafe_vr_data, 1
         )
@@ -28,11 +28,16 @@ class MasterNode(Node):
         self.sub_vr_mode = self.create_subscription(
             VRMode, "_vr_mode", self.handle_unsafe_vr_mode, 1
         )
+        self.sub_robot_data = self.create_subscription(
+            RobotData, "_robot_data", self.handle_robot_data, 1
+        )
 
-        # NOTE: publishers
+        # publishers
         self.pub_vr = self.create_publisher(VRData, "vr_data", 1)
         self.pub_vr_hand = self.create_publisher(VRHand, "vr_hand", 1)
         self.pub_vr_mode = self.create_publisher(VRMode, "vr_mode", 1)
+        self.pub_robot_data = self.create_publisher(RobotData, "robot_data", 1)
+        self.pub_message = self.create_publisher(Message, "message", 1)
 
     def set_mode(self, mode: Mode) -> None:
         """Sets the mode.
@@ -42,6 +47,11 @@ class MasterNode(Node):
         """
         self.mode = mode
         print(f"mode set to {self.mode}")
+
+        msg = Message()
+        msg.message = f"mode set to {self.mode}"
+        msg.level = 20
+        self.pub_message.publish(msg)
 
     def get_mode(self) -> Mode:
         """Gets the mode.
@@ -81,6 +91,15 @@ class MasterNode(Node):
             Mode
         """
         return Mode(mode)
+
+    def handle_robot_data(self, msg) -> None:
+        """Handles RobotData messages.
+
+        Args:
+            msg: RobotData message
+        """
+        msg.mode = self.mode.name
+        self.pub_robot_data.publish(msg)
 
     def handle_unsafe_vr_mode(self, msg) -> None:
         """Handles VRMode messages.

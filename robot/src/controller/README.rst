@@ -12,5 +12,6 @@ It is responsible for controlling the robot's movement and arm movements.
 
 **Published topics**
 
+* message (Message) - Message to be logged including level.
 * robot_data (RobotData) - Data from the robot such as voltage, speed, gyroscope, etc.
 

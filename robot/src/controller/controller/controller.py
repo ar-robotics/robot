@@ -1,11 +1,5 @@
 import time
 
-try:
-    from interfaces.msg import RobotData
-except ModuleNotFoundError:
-    # unittest cannot find this module
-    pass
-
 from .robot import Direction, Robot
 from .utils import get_threshold
 
@@ -20,41 +14,10 @@ class Controller:
         """
         self.robot = Robot(production)
         self.THRESHOLD = get_threshold()
-        self.last_command_received = 0
+        self.last_command_received = time.time()
         self.is_sleeping = False
         self.last_mode = -1
         # self.robot.drive(Direction.STOP)
-
-    @staticmethod
-    def _fill_vector_msg(msg, key: str, data: list):
-        """Fills a std_msgs.msg.Vector3 message for given key.
-
-        Args:
-            msg: message
-            key: key to fill for
-            data: x, y, z data
-
-        Returns:
-            message with filled data
-        """
-        obj = getattr(msg, key)
-
-        for i, n in zip(["x", "y", "z"], [0, 1, 2]):
-            setattr(obj, i, data[n])
-
-        return msg
-
-    def get_robot_data(self) -> None:
-        data = self.robot.get_data()
-
-        msg = RobotData()
-        msg = self._fill_vector_msg(msg, "accelerometer", data["accelerometer"])
-        msg = self._fill_vector_msg(msg, "gyroscope", data["gyroscope"])
-        msg = self._fill_vector_msg(msg, "magnetometer", data["magnetometer"])
-        msg = self._fill_vector_msg(msg, "motion", data["motion"])
-        msg.voltage = data["voltage"]
-
-        self.pub_robot_data.publish(msg)
 
     def convert_coordinates_to_direction(self, x: float, y: float) -> Direction:
         """Converts x, y coordinates to a direction.
@@ -82,10 +45,26 @@ class Controller:
 
     @staticmethod
     def convert_x_to_angle_difference(x: float) -> int:
+        """Converts x to angle difference.
+
+        Args:
+            x: x
+
+        Returns:
+            angle difference
+        """
         return int(x * 90)
 
     @staticmethod
     def convert_y_to_angle_difference(y: float) -> int:
+        """Converts y to angle difference.
+
+        Args:
+            y: y
+
+        Returns:
+            angle difference
+        """
         y_abs = abs(y)
 
         if y_abs > 1:
@@ -136,8 +115,8 @@ class Controller:
             # rotate arm out
             self.robot.unpinch()
             self.robot.reset_wrist()
-            self.robot.set_arm_rotation(180)
             self.robot.reset_arm_tilt()
+            self.robot.set_arm_rotation(180)
             self.robot.reset_arm_elbow()
             self.robot.set_arm_shoulder(175)
             time.sleep(0.5)
@@ -168,12 +147,17 @@ class Controller:
 
         If so, the robot will stop and sleep. Will long beep twice to indicate this.
         """
-        if time.time() > self.last_command_received + 5:
-            self.robot.stop()
-            self.is_sleeping = True
+        if time.time() < self.last_command_received + 5:
+            return
 
-            self.robot.long_beep()
-            self.robot.long_beep()
+        # check only if first time going into sleep mode
+        if self.is_sleeping:
+            return
+
+        self.robot.stop()
+        self.robot.long_beep()
+        self.robot.long_beep()
+        self.is_sleeping = True
 
     def _set_last_message_received(self) -> None:
         """Sets the last message received time to the current time."""
@@ -204,6 +188,14 @@ class Controller:
 
     @staticmethod
     def _speed_out_of_range(speed: int) -> bool:
+        """Checks if the speed is out of range.
+
+        Args:
+            speed: speed
+
+        Returns:
+            True if the speed is out of range
+        """
         return speed not in range(0, 100 + 1)
 
     def handle_vr_data(self, msg) -> None:
