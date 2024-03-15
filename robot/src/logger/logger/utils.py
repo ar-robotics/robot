@@ -8,8 +8,8 @@ class FileFormatter(logging.Formatter):
         logging.DEBUG: _format,
         logging.INFO: _format,
         logging.WARNING: _format,
-        logging.ERROR: _format + "(%(filename)s:%(lineno)d)",
-        logging.CRITICAL: _format + "(%(filename)s:%(lineno)d)",
+        logging.ERROR: _format,
+        logging.CRITICAL: _format,
     }
 
     def format(self, record):  # noqa

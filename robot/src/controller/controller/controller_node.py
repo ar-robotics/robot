@@ -58,6 +58,7 @@ class ControllerNode(Node):
         msg = fill_vector_msg(msg, "gyroscope", data["gyroscope"])
         msg = fill_vector_msg(msg, "magnetometer", data["magnetometer"])
         msg = fill_vector_msg(msg, "motion", data["motion"])
+        msg.battery = data["battery"]
         msg.voltage = data["voltage"]
         msg.mode = ""  # master fills this field
 

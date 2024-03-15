@@ -15,7 +15,7 @@ class Rosmaster(object):
     def __init__(
         self,
         car_type: int = 1,
-        com: str = "/dev/ttyUSB0",
+        com: str = "/dev/expbrd",
         delay: float = 0.002,
         debug: bool = False,
     ):
@@ -142,6 +142,8 @@ class Rosmaster(object):
         if self.is_testing:
             return
 
+        self.task_receive = None
+
         if self.ser.isOpen():
             print("Rosmaster Serial Opened! Baudrate=115200")
         else:
@@ -154,6 +156,9 @@ class Rosmaster(object):
     def __del__(self) -> None:
         if self.is_testing:
             return
+
+        if self.task_receive is not None:
+            self.task_receive.join()
 
         self.ser.close()
         self.__uart_state = 0
@@ -296,24 +301,23 @@ class Rosmaster(object):
                 self.__read_car_type = car_type
 
     # 接收数据 receive data
-    def __receive_data(self) -> None:
+    def set_data(self) -> None:
         """Receives the data."""
         # 清空缓冲区
-        self.ser.flushInput()
 
-        while True:
-            time.sleep(0.1)
+        try:
+            self.ser.flushInput()
             head_1 = bytearray(self.ser.read())[0]
 
             if head_1 != self.__HEAD:
-                continue
+                return 
 
             head_2 = bytearray(self.ser.read())[0]
             check_sum = 0
             rx_check_num = 0
 
             if head_2 != self.__DEVICE_ID - 1:
-                continue
+                return 
 
             ext_len = bytearray(self.ser.read())[0]
             ext_type = bytearray(self.ser.read())[0]
@@ -336,6 +340,9 @@ class Rosmaster(object):
             else:
                 if self.__debug:
                     print("check sum error:", ext_len, ext_type, ext_data)
+
+        except BaseException as e:
+            print("here:", e)
 
     # 请求数据， function：对应要返回数据的功能字，parm：传入的参数。
     # Request data, function: corresponding function word to return data, parm: parameter passed in
@@ -442,10 +449,10 @@ class Rosmaster(object):
         try:
             if self.__uart_state == 0:
                 name1 = "task_serial_receive"
-                task_receive = threading.Thread(
-                    target=self.__receive_data, name=name1, daemon=True
+                self.task_receive = threading.Thread(
+                    target=self.set_data, name=name1, daemon=True
                 )
-                task_receive.start()
+                self.task_receive.start()
                 print("----------------create receive threading--------------")
                 self.__uart_state = 1
                 time.sleep(0.05)
@@ -1393,24 +1400,21 @@ class Rosmaster(object):
     # Get accelerometer triaxial data, return a_x, a_y, a_z
     def get_accelerometer_data(self) -> tuple[float]:
         """Get the accelerometer triaxial data, return a_x, a_y, a_z."""
-        a_x, a_y, a_z = self.__ax, self.__ay, self.__az
         # self.__ax, self.__ay, self.__az = 0.0, 0.0, 0.0
-        return a_x, a_y, a_z
+        return self.__ax, self.__ay, self.__az
 
     # 获取陀螺仪三轴数据，返回g_x, g_y, g_z
     # Get the gyro triaxial data, return g_x, g_y, g_z
     def get_gyroscope_data(self) -> tuple[float]:
         """Get the gyro triaxial data, return g_x, g_y, g_z."""
-        g_x, g_y, g_z = self.__gx, self.__gy, self.__gz
         # self.__gx, self.__gy, self.__gz = 0.0, 0.0, 0.0
-        return g_x, g_y, g_z
+        return self.__gx, self.__gy, self.__gz
 
     # 获取磁力计三轴数据，返回m_x, m_y, m_z
     def get_magnetometer_data(self) -> tuple[float]:
         """Get the magnetometer triaxial data, return m_x, m_y, m_z."""
-        m_x, m_y, m_z = self.__mx, self.__my, self.__mz
         # self.__mx, self.__my, self.__mz = 0.0, 0.0, 0.0
-        return m_x, m_y, m_z
+        return self.__mx, self.__my, self.__mz
 
     # 获取板子姿态角，返回yaw, roll, pitch
     # ToAngle=True返回角度，ToAngle=False返回弧度。
@@ -1434,32 +1438,27 @@ class Rosmaster(object):
     # Get the car speed, val_vx, val_vy, val_vz
     def get_motion_data(self) -> tuple[float]:
         """Get the car speed, val_vx, val_vy, val_vz."""
-        val_vx = self.__vx
-        val_vy = self.__vy
-        val_vz = self.__vz
         # self.__vx, self.__vy, self.__vz = 0.0, 0.0, 0.0
-        return val_vx, val_vy, val_vz
+        return self.__vx, self.__vy, self.__vz
 
     # 获取电池电压值
     # Get the battery voltage
     def get_battery_voltage(self) -> float:
         """Get the battery voltage."""
-        vol = self.__battery_voltage / 10.0
         # self.__battery_voltage = 0
-        return vol
+        return self.__battery_voltage / 10.0
 
     # 获取四路电机编码器数据
     # Obtain data of four-channel motor encoder
     def get_motor_encoder(self) -> tuple[int]:
         """Obtain data of four-channel motor encoder."""
-        m1, m2, m3, m4 = (
+        # self.__encoder_m1, self.__encoder_m2, self.__encoder_m3, self.__encoder_m4 = 0, 0, 0, 0
+        return (
             self.__encoder_m1,
             self.__encoder_m2,
             self.__encoder_m3,
             self.__encoder_m4,
         )
-        # self.__encoder_m1, self.__encoder_m2, self.__encoder_m3, self.__encoder_m4 = 0, 0, 0, 0
-        return m1, m2, m3, m4
 
     # 获取小车的运动PID参数, 返回[kp, ki, kd]
     # Get the motion PID parameters of the dolly and return [kp, ki, kd]

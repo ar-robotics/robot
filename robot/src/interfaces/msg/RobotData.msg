@@ -2,5 +2,6 @@ geometry_msgs/Vector3 accelerometer
 geometry_msgs/Vector3 gyroscope
 geometry_msgs/Vector3 magnetometer
 geometry_msgs/Vector3 motion
+int64 battery
 float64 voltage
 string mode

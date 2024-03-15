@@ -28,3 +28,8 @@ class TestDirections(TestCase):
         self.robot.production = True
 
         self.assertRaises(AttributeError, self.robot.beep)
+
+    def test_battery_percentage(self):
+        self.assertEqual(self.robot.estimate_battery_percentage(12.6), 100)
+        self.assertEqual(self.robot.estimate_battery_percentage(9.7), 0)
+        self.assertEqual(self.robot.estimate_battery_percentage(11.15), 50)

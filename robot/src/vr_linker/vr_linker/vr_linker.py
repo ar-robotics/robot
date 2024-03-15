@@ -35,7 +35,14 @@ class VRLinker:
         Args:
             data: data
         """
-        self.node.client_socket.sendall(self._to_json(data))
+        if self.node.client_socket is None:
+            return
+
+        try:
+            self.node.client_socket.sendall(self._to_json(data))
+        except BrokenPipeError as e:
+            print("Client disconnected", e)
+            self.node.client_disconnected(e)
 
     @staticmethod
     def _get_vector_data(msg, key: str) -> list[float]:
@@ -51,6 +58,7 @@ class VRLinker:
         obj = getattr(msg, key)
         return [getattr(obj, i) for i in ["x", "y", "z"]]
 
+    @staticmethod
     def _calculate_speed(speeds: list[float]) -> float:
         """Calculates the speed from the x and y speeds.
 
@@ -60,8 +68,8 @@ class VRLinker:
         Returns:
             speed
         """
-        v_x, v_y, v_z = speeds
-        return (v_x**2 + v_y**2 + v_z**2) ** 0.5
+        v_x, v_y, _ = speeds
+        return (v_x**2 + v_y**2) ** 0.5
 
     def handle_robot_data(self, msg) -> None:
         """Receives RobotData messages and sends over socket.
@@ -70,6 +78,9 @@ class VRLinker:
             msg: RobotData message
         """
         print(f"-> {time.time()} {msg}")
+
+        # motion = self._get_vector_data(msg, "motion")
+        # speed = self._calculate_speed(motion)
 
         motion = self._get_vector_data(msg, "motion")
         speed = self._calculate_speed(motion)
@@ -80,6 +91,7 @@ class VRLinker:
             "magnetometer": self._get_vector_data(msg, "magnetometer"),
             "motion": motion,
             "speed": speed,
+            "battery": msg.battery,
             "voltage": msg.voltage,
             "mode": msg.mode,
         }

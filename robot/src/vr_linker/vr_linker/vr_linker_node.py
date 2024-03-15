@@ -33,6 +33,7 @@ class VRLinkerNode(Node):
         self.port = 8080
 
         # Create a TCP socket
+        self.client_socket = None
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Bind the socket to the address and port
@@ -46,28 +47,34 @@ class VRLinkerNode(Node):
         self.thread.start()
 
     def listen(self) -> None:
-        # Accept incoming connection
-        self.client_socket, self.client_address = self.server_socket.accept()
-        print(f"Connection established with {self.client_address}")
+        while True:
+            # Accept incoming connection
+            self.client_socket, self.client_address = self.server_socket.accept()
+            print(f"Connection established with {self.client_address}")
 
-        try:
             while True:
-                self.vr_linker.process_message()
+                try:
+                    self.vr_linker.process_message()
+                except BaseException as e:
+                    self.client_disconnected(e)
+                    break
 
-        except BaseException as e:
-            print(f"Error: {e}")
-            msg = Message()
-            msg.message = f"Error in VRLinkerNode, {e}. Closing connection..."
-            msg.level = 50
-            self.pub_message.publish(msg)
+    def client_disconnected(self, e) -> None:
+        print(f"Error: {e}")
+        msg = Message()
+        msg.message = f"Error in VRLinkerNode, {e}. Closing connection..."
+        msg.level = 50
+        self.pub_message.publish(msg)
 
         self.cleanup()
 
     def cleanup(self):
         """Cleans up the node."""
         # Close the connection
-        self.client_socket.close()
-        self.server_socket.close()
+        if self.client_socket is not None:
+            self.client_socket.close()
+
+        self.client_socket = None
 
         msg = Message()
         msg.message = "Socket connection to VR closed."
@@ -76,6 +83,7 @@ class VRLinkerNode(Node):
 
     def __del__(self):
         self.cleanup()
+        self.server_socket.close()
         self.thread.join()
 
 

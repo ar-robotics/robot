@@ -20,7 +20,7 @@ class Robot:
             self.ros_master = Rosmaster(com="/dev/expbrd", debug=True)
             # self.ros_master = Rosmaster(com="/dev/ttyUSB1", delay=0.08, debug=True)
 
-            self.ros_master.create_receive_threading()
+            # self.ros_master.create_receive_threading()
 
             self.reset()
 
@@ -261,14 +261,23 @@ class Robot:
         self.ros_master.set_beep(duration)
         time.sleep(duration / 1000)
 
+    @staticmethod
+    def estimate_battery_percentage(voltage: float) -> int:
+        return int((voltage - 9.7) / (12.6 - 9.7) * 100)
+
     @in_production_mode
     def get_data(self) -> dict:
+        self.ros_master.set_data()
+
+        voltage = self.ros_master.get_battery_voltage()
+
         return {
             "accelerometer": self.ros_master.get_accelerometer_data(),
             "gyroscope": self.ros_master.get_gyroscope_data(),
             "magnetometer": self.ros_master.get_magnetometer_data(),
             "motion": self.ros_master.get_motion_data(),
-            "voltage": self.ros_master.get_battery_voltage(),
+            "battery": self.estimate_battery_percentage(voltage),
+            "voltage": voltage,
         }
 
     def __del__(self) -> None:
