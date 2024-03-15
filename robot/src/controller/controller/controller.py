@@ -1,7 +1,7 @@
 import time
 
 from .robot import Direction, Robot
-from .utils import get_threshold
+from .utils import get_sleep_mode_after, get_threshold, set_last_message
 
 
 class Controller:
@@ -15,6 +15,7 @@ class Controller:
         self.robot = Robot(production)
         self.THRESHOLD = get_threshold()
         self.last_command_received = time.time()
+        self.sleep_mode_after = get_sleep_mode_after()
         self.is_sleeping = False
         self.last_mode = -1
         # self.robot.drive(Direction.STOP)
@@ -143,11 +144,12 @@ class Controller:
             self.robot.long_beep()
 
     def check_last_message_received(self) -> None:
-        """Checks if the last message was received more than 5 seconds ago.
+        """Checks if last message was received more than `sleep_mode_after` seconds ago.
 
         If so, the robot will stop and sleep. Will long beep twice to indicate this.
+        Function gets called by rclpy timer with the hertz specified in the config file.
         """
-        if time.time() < self.last_command_received + 5:
+        if time.time() < self.last_command_received + self.sleep_mode_after:
             return
 
         # check only if first time going into sleep mode
@@ -159,19 +161,25 @@ class Controller:
         self.robot.long_beep()
         self.is_sleeping = True
 
-    def _set_last_message_received(self) -> None:
-        """Sets the last message received time to the current time."""
-        self.last_command_received = time.time()
-        self.is_sleeping = False
+    @staticmethod
+    def _speed_out_of_range(speed: int) -> bool:
+        """Checks if the speed is out of range.
 
+        Args:
+            speed: speed
+
+        Returns:
+            True if the speed is out of range
+        """
+        return speed not in range(0, 100 + 1)
+
+    @set_last_message
     def handle_vr_hand(self, msg) -> None:
         """Handles VRHand messages.
 
         Args:
             msg: VRHand message
         """
-        self._set_last_message_received()
-
         x, y, pinch, strength = msg.x, msg.y, msg.pinch, msg.strength
 
         print(f"got {x=} {y=} {pinch=} {strength=}")
@@ -186,26 +194,13 @@ class Controller:
 
         print(f"- {x_angle=} {y_angle=} {pinch_angle=}")
 
-    @staticmethod
-    def _speed_out_of_range(speed: int) -> bool:
-        """Checks if the speed is out of range.
-
-        Args:
-            speed: speed
-
-        Returns:
-            True if the speed is out of range
-        """
-        return speed not in range(0, 100 + 1)
-
+    @set_last_message
     def handle_vr_data(self, msg) -> None:
         """Handles VRData messages.
 
         Args:
             msg: VRData message
         """
-        self._set_last_message_received()
-
         x, y, speed = msg.x, msg.y, msg.speed
         print(f"got {x=} {y=} {speed=}")
         direction = self.convert_coordinates_to_direction(x, y)
@@ -218,14 +213,13 @@ class Controller:
 
         self.robot.drive(direction)
 
+    @set_last_message
     def handle_vr_mode(self, msg) -> None:
         """Handles VRMode messages.
 
         Args:
             msg: VRMode message
         """
-        self._set_last_message_received()
-
         print(f"got {msg.mode=}")
 
         # NOTE:

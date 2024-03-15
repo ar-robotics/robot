@@ -274,5 +274,3 @@ class Robot:
     def __del__(self) -> None:
         """Cleans up the robot."""
         del self.ros_master
-
-        print("Robot deleted")

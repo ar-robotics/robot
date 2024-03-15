@@ -1,5 +1,5 @@
 import socket
-import time
+from threading import Thread
 
 from interfaces.msg import Message, RobotData, VRData, VRHand, VRMode
 
@@ -42,7 +42,8 @@ class VRLinkerNode(Node):
         self.server_socket.listen(1)
         print(f"Server is listening on {self.host}:{self.port}")
 
-        self.listen()
+        self.thread = Thread(target=self.listen, daemon=True)
+        self.thread.start()
 
     def listen(self) -> None:
         # Accept incoming connection
@@ -52,7 +53,6 @@ class VRLinkerNode(Node):
         try:
             while True:
                 self.vr_linker.process_message()
-                time.sleep(0.05)
 
         except BaseException as e:
             print(f"Error: {e}")
@@ -73,6 +73,10 @@ class VRLinkerNode(Node):
         msg.message = "Socket connection to VR closed."
         msg.level = 50
         self.pub_message.publish(msg)
+
+    def __del__(self):
+        self.cleanup()
+        self.thread.join()
 
 
 def main(args=None):

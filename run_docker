@@ -1,4 +1,4 @@
 #!/bin/bash
 # docker run --rm -it --user ros --device /dev/video0 -v $PWD/robot:/robot ros2_humble_workspace
 # docker run --rm -it --user ros --network host -v $PWD/robot:/robot ros2_humble_workspace 
-docker run --rm -it --user root --network host -v $PWD/robot:/robot ros2_humble_workspace 
+docker run --rm -it --user ros --network host -v $PWD/robot:/robot ros2_humble_workspace 

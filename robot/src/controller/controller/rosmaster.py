@@ -32,7 +32,10 @@ class Rosmaster(object):
         # com="/dev/ttyUSB0"
         # com="/dev/ttyAMA0"
 
-        self.ser = serial.Serial(com, 115200)
+        self.is_testing = com == "testing"
+
+        if not self.is_testing:
+            self.ser = serial.Serial(com, 115200)
 
         self.__delay_time = delay
         self.__debug = debug
@@ -136,15 +139,22 @@ class Rosmaster(object):
         if self.__debug:
             print("cmd_delay=" + str(self.__delay_time) + "s")
 
+        if self.is_testing:
+            return
+
         if self.ser.isOpen():
             print("Rosmaster Serial Opened! Baudrate=115200")
         else:
             print("Serial Open Failed!")
+
         # 打开机械臂的扭矩力，避免6号舵机首次插上去读不到角度。
         self.set_uart_servo_torque(1)
         time.sleep(0.002)
 
-    def __del__(self):
+    def __del__(self) -> None:
+        if self.is_testing:
+            return
+
         self.ser.close()
         self.__uart_state = 0
         print("serial Close!")
@@ -292,43 +302,40 @@ class Rosmaster(object):
         self.ser.flushInput()
 
         while True:
-            try:
-                head_1 = bytearray(self.ser.read())[0]
+            time.sleep(0.1)
+            head_1 = bytearray(self.ser.read())[0]
 
-                if head_1 != self.__HEAD:
-                    continue
+            if head_1 != self.__HEAD:
+                continue
 
-                head_2 = bytearray(self.ser.read())[0]
-                check_sum = 0
-                rx_check_num = 0
+            head_2 = bytearray(self.ser.read())[0]
+            check_sum = 0
+            rx_check_num = 0
 
-                if head_2 != self.__DEVICE_ID - 1:
-                    continue
+            if head_2 != self.__DEVICE_ID - 1:
+                continue
 
-                ext_len = bytearray(self.ser.read())[0]
-                ext_type = bytearray(self.ser.read())[0]
-                ext_data = []
-                check_sum = ext_len + ext_type
-                data_len = ext_len - 2
+            ext_len = bytearray(self.ser.read())[0]
+            ext_type = bytearray(self.ser.read())[0]
+            ext_data = []
+            check_sum = ext_len + ext_type
+            data_len = ext_len - 2
 
-                while len(ext_data) < data_len:
-                    value = bytearray(self.ser.read())[0]
-                    ext_data.append(value)
+            while len(ext_data) < data_len:
+                value = bytearray(self.ser.read())[0]
+                ext_data.append(value)
 
-                    if len(ext_data) == data_len:
-                        rx_check_num = value
-                    else:
-                        check_sum = check_sum + value
-
-                if check_sum % 256 == rx_check_num:
-                    self.__parse_data(ext_type, ext_data)
-
+                if len(ext_data) == data_len:
+                    rx_check_num = value
                 else:
-                    if self.__debug:
-                        print("check sum error:", ext_len, ext_type, ext_data)
+                    check_sum = check_sum + value
 
-            except BaseException:
-                pass
+            if check_sum % 256 == rx_check_num:
+                self.__parse_data(ext_type, ext_data)
+
+            else:
+                if self.__debug:
+                    print("check sum error:", ext_len, ext_type, ext_data)
 
     # 请求数据， function：对应要返回数据的功能字，parm：传入的参数。
     # Request data, function: corresponding function word to return data, parm: parameter passed in
@@ -380,7 +387,8 @@ class Rosmaster(object):
 
     # 机械臂转化位置脉冲成角度（读取角度）
     # Arm converts position pulses into angles
-    def __arm_convert_angle(self, s_id: int, s_value: int) -> int:
+    @staticmethod
+    def _arm_convert_angle(s_id: int, s_value: int) -> int:
         """Converts the angle of the arm.
 
         Args:
@@ -403,7 +411,8 @@ class Rosmaster(object):
 
     # 限制电机输入的PWM占空比数值，value=127则保持原来的数据，不修改当前电机速度
     # Limit the PWM duty ratio value of motor input, value=127, keep the original data, do not modify the current motor speed
-    def __limit_motor_value(self, value: int) -> int:
+    @staticmethod
+    def _clamp_motor_value(value: int) -> int:
         """Limits (clamps) the motor value.
 
         Args:
@@ -412,14 +421,19 @@ class Rosmaster(object):
         Returns:
             the clamped value of the motor between -100 and 100
         """
-        if value == 127:
-            return 127
-        elif value > 100:
+        # if value == 127:
+        #     return 127
+
+        if not isinstance(value, int):
+            raise TypeError("value must be an integer")
+
+        if value > 100:
             return 100
-        elif value < -100:
+
+        if value < -100:
             return -100
-        else:
-            return int(value)
+
+        return value
 
     # 开启接收和处理数据的线程
     # Start the thread that receives and processes data
@@ -428,8 +442,9 @@ class Rosmaster(object):
         try:
             if self.__uart_state == 0:
                 name1 = "task_serial_receive"
-                task_receive = threading.Thread(target=self.__receive_data, name=name1)
-                task_receive.setDaemon(True)
+                task_receive = threading.Thread(
+                    target=self.__receive_data, name=name1, daemon=True
+                )
                 task_receive.start()
                 print("----------------create receive threading--------------")
                 self.__uart_state = 1
@@ -682,10 +697,10 @@ class Rosmaster(object):
             speed_4: the speed of motor 4
         """
         try:
-            t_speed_a = bytearray(struct.pack("b", self.__limit_motor_value(speed_1)))
-            t_speed_b = bytearray(struct.pack("b", self.__limit_motor_value(speed_2)))
-            t_speed_c = bytearray(struct.pack("b", self.__limit_motor_value(speed_3)))
-            t_speed_d = bytearray(struct.pack("b", self.__limit_motor_value(speed_4)))
+            t_speed_a = bytearray(struct.pack("b", self._clamp_motor_value(speed_1)))
+            t_speed_b = bytearray(struct.pack("b", self._clamp_motor_value(speed_2)))
+            t_speed_c = bytearray(struct.pack("b", self._clamp_motor_value(speed_3)))
+            t_speed_d = bytearray(struct.pack("b", self._clamp_motor_value(speed_4)))
             cmd = [
                 self.__HEAD,
                 self.__DEVICE_ID,
@@ -1330,7 +1345,7 @@ class Rosmaster(object):
             s_id: the id of the servo
         """
         read_id, value = self.get_uart_servo_value(s_id)
-        angle = self.__arm_convert_angle(s_id, value)
+        angle = self._arm_convert_angle(s_id, value)
 
         if s_id != read_id:
             print(f"servo_{s_id} read error!")
@@ -1361,7 +1376,7 @@ class Rosmaster(object):
                 if self.__read_arm_ok == 1:
                     for i in range(6):
                         if self.__read_arm[i] > 0:
-                            angle[i] = self.__arm_convert_angle(
+                            angle[i] = self._arm_convert_angle(
                                 i + 1, self.__read_arm[i]
                             )
                     if self.__debug:

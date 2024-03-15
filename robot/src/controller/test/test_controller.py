@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from controller.controller import Controller
 from controller.enums import Direction
+from controller.utils import fill_vector_msg, get_sleep_mode_after
 
 
 class TestController(TestCase):
@@ -69,23 +70,38 @@ class TestController(TestCase):
                 self.accelerometer = MockVector()
 
         msg = MockRobotData()
-        self.controller._fill_vector_msg(msg, "accelerometer", [1, 2, 3])
+        fill_vector_msg(msg, "accelerometer", [1, 2, 3])
 
         self.assertEqual(msg.accelerometer.x, 1)
         self.assertEqual(msg.accelerometer.y, 2)
         self.assertEqual(msg.accelerometer.z, 3)
 
     def test_auto_sleep(self):
-        self.controller._set_last_message_received()
+        # self.controller._set_last_message_received()
         self.controller.check_last_message_received()
 
         self.assertFalse(self.controller.is_sleeping)
 
-        self.controller.last_command_received = time.time() - 5.1
+        self.controller.last_command_received = time.time() - (
+            get_sleep_mode_after() + 0.1
+        )
         self.controller.check_last_message_received()
 
         self.assertTrue(self.controller.is_sleeping)
         self.assertEqual(self.controller.robot.last_direction, Direction.STOP)
+
+    def test_set_last_message(self):
+        self.controller.last_command_received = 0
+        self.controller.is_sleeping = True
+
+        time_now = time.time()
+        self.assertTrue(self.controller.is_sleeping)
+        self.assertLess(self.controller.last_command_received, time_now)
+
+        self.assertRaises(TypeError, self.controller.handle_vr_mode)
+
+        self.assertFalse(self.controller.is_sleeping)
+        self.assertGreater(self.controller.last_command_received, time_now)
 
     def test_speed_out_of_range(self):
         self.assertFalse(self.controller._speed_out_of_range(50))
